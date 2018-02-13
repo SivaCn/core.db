@@ -65,11 +65,25 @@ class UserSessionModel(SqlAlchemyORM):
         return cls.insert(session, **kwargs)
 
     @classmethod
-    def fetch_active_user_session(cls, session, mode='all', select_cols="*", data_as_dict=False, **kwargs):
+    def logout(cls, session, user_idn, user_session_cd):
+        code_status_data = CodeStatusModel.fetch_status_idn(session, status='loggedout')
+
+        return cls.update(
+            session,
+            updates={'is_active': 0, 'status_idn': code_status_data.status_idn},
+            where_condition={'user_idn': user_idn, 'unique_session_cd': user_session_cd}
+        )
+
+    @classmethod
+    def fetch_active_loggedin_user_session(cls, session, mode='all', select_cols="*", data_as_dict=False, **kwargs):
         kwargs.update({'join_tables':list()})
 
         if 'is_active' not in kwargs:
             kwargs['is_active'] = 1
+
+        if 'status' not in kwargs:
+            code_status_data = CodeStatusModel.fetch_status_idn(session, status='loggedin')
+            kwargs['status_idn'] = code_status_data.status_idn
 
         if 'user_idn' in kwargs:
             kwargs['join_tables'].append(
