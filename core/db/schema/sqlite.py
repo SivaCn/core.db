@@ -182,7 +182,7 @@ DataBaseEntity(
         '''    job_id VARCHAR NOT NULL , '''
         '''    schedule_type_idn INTEGER NOT NULL, '''
         '''    start_date DATETIME NOT NULL , '''
-        '''    recurrence INTEGER, '''
+        '''    recurrence VARCHAR, '''
         '''    day_of_week VARCHAR, '''
         '''    params VARCHAR, '''
         '''    is_active INTEGER NOT NULL DEFAULT 1, '''

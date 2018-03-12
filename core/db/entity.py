@@ -97,7 +97,7 @@ class JobDetailsEntity(Base):
     job_id = Column(String, nullable=False)
     schedule_type_idn = Column(Integer, ForeignKey('code_schedule_type.schedule_type_idn'))
     start_date = Column(DateTime, default=datetime.datetime.utcnow)
-    recurrence = Column(Integer, nullable=True)
+    recurrence = Column(String, nullable=True)
     day_of_week = Column(String, nullable=True)
     params = Column(String, nullable=True)
     is_active = Column(Integer, nullable=False, default=1)
