@@ -49,10 +49,13 @@ class DataBaseEntity(object):
     def load_all(cls):
         import sqlite3 as sqlite
         connection = sqlite.connect(main_db_details['path'])
+        print "Database {} has been created sucessfully".format(main_db_details['name'])
 
         cursor = connection.cursor()
 
         for each in cls.instances:
+            if each.description:
+                print "Performing {}".format(each.description)
             if each.pre_query:
                 print 'performing PRE-PROCESS for {}... '.format(each.description or '<NO DESC>'),
                 try:
