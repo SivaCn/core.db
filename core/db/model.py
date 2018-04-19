@@ -142,11 +142,12 @@ class JobDetailsModel(SqlAlchemyORM):
             )
         )
 
-        columns = cls.table.__table__.columns.keys()
-        select_cols = [getattr(cls.table, column_name) for column_name in columns] + [
-            UserModel.table.user_name,
-            CodeScheduleTypeModel.table.schedule_type
-        ]
+        #columns = cls.table.__table__.columns.keys()
+
+        #select_cols = [getattr(cls.table, column_name) for column_name in columns] + [
+        #    UserModel.table.user_name,
+        #    CodeScheduleTypeModel.table.schedule_type
+        #]
 
         return super(cls, cls).fetch(
             session, mode=mode, select_cols=select_cols, data_as_dict=data_as_dict, **kwargs
