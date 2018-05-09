@@ -250,5 +250,41 @@ DataBaseEntity(
     pre_query='''DROP TABLE IF EXISTS TRANS_SMS'''
 )
 
+DataBaseEntity(
+    query=(
+        '''CREATE  TABLE  IF NOT EXISTS "main"."code_events" '''
+        '''(code_events_idn INTEGER PRIMARY KEY  NOT NULL  UNIQUE , '''
+        '''event_name VARCHAR NOT NULL  UNIQUE) '''
+    ),
+    desc='''Create code_events table''',
+    pre_query='''DROP TABLE IF EXISTS CODE_EVENTS'''
+)
+
+DataBaseEntity(
+    query=(
+        '''CREATE  TABLE  IF NOT EXISTS "main"."code_sms_events" '''
+        '''(code_sms_events_idn INTEGER PRIMARY KEY  NOT NULL  UNIQUE , '''
+        '''code_events_idn INTEGER , '''
+        '''is_active NUMERIC NOT NULL  DEFAULT 1, '''
+        '''    FOREIGN KEY(code_events_idn) REFERENCES code_events(code_events_idn))'''
+    ),
+    desc='''Create code_sms_events table''',
+    pre_query='''DROP TABLE IF EXISTS CODE_SMS_EVENTS'''
+)
+
+
+DataBaseEntity(
+    query=(
+        '''CREATE  TABLE  IF NOT EXISTS "main"."config_user_sms" '''
+        '''(config_user_sms_idn INTEGER PRIMARY KEY  NOT NULL  UNIQUE , '''
+        '''user_idn INTEGER NOT NULL , '''
+        '''code_sms_events_idn INTEGER , '''
+        '''is_active NUMERIC NOT NULL  DEFAULT 1, '''
+        '''    FOREIGN KEY(user_idn) REFERENCES user(user_idn),'''
+        '''    FOREIGN KEY(code_sms_events_idn) REFERENCES code_events(code_sms_events_idn))'''
+    ),
+    desc='''Create config_user_sms table''',
+    pre_query='''DROP TABLE IF EXISTS CONFIG_USER_SMS'''
+)
 
 
