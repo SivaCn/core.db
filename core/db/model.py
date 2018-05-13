@@ -161,7 +161,11 @@ class JobDetailsModel(SqlAlchemyORM):
         ]
 
         return super(cls, cls).fetch(
-            session, mode=mode, select_cols=select_cols, data_as_dict=data_as_dict, **kwargs
+            session, mode=mode,
+            select_cols=select_cols,
+            data_as_dict=data_as_dict,
+            order_by=(JobDetailsModel.table.start_date, 'desc'),
+            **kwargs
         )
 
     @classmethod
