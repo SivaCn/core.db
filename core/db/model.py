@@ -206,6 +206,36 @@ class JobRunLogModel(SqlAlchemyORM):
 class TransOtpModel(SqlAlchemyORM):
     table = TransOtpEntity
 
+    @classmethod
+    def insert(cls, session, **kwargs):
+        """.
+        """
+        from core.backend.utils.core_utils import encode
+
+        kwargs['otp_code'] = encode(str(kwargs['otp_code']))
+        
+        return super(cls, cls).insert(session, **kwargs)
+
+    @classmethod
+    def fetch_one(cls, session, select_cols='*', data_as_dict=True, **kwargs):
+
+        if data_as_dict is not True:
+            raise Exception("argument data_as_dict must be True")
+
+        from core.backend.utils.core_utils import decode
+
+        _otp_rec = super(cls, cls).fetch_one(
+            session,
+            select_cols=select_cols,
+            data_as_dict=data_as_dict,
+            **kwargs
+        )
+
+        if _otp_rec:
+            _otp_rec['otp_code'] = int(decode(_otp_rec['otp_code']))
+
+        return _otp_rec
+
 class TransSmsModel(SqlAlchemyORM):
     table = TransSmsEntity
 

@@ -226,7 +226,7 @@ DataBaseEntity(
     query=(
         '''CREATE  TABLE  IF NOT EXISTS "main"."trans_otp" '''
         '''(trans_otp_idn INTEGER PRIMARY KEY  NOT NULL  UNIQUE , '''
-        '''otp_code INTEGER NOT NULL , '''
+        '''otp_code VARCHAR NOT NULL , '''
         '''user_idn INTEGER NOT NULL , '''
         '''status_idn INTEGER NOT NULL ,''' 
         '''crt_dt DATETIME NOT NULL  DEFAULT CURRENT_TIMESTAMP, '''
@@ -276,6 +276,11 @@ DataBaseEntity(
 )
 
 DataBaseEntity(
+    query='''INSERT INTO "main"."code_events" ("event_name") VALUES ('always on');''',
+    desc='''Data Load for code_events table'''
+)
+
+DataBaseEntity(
     query=(
         '''CREATE  TABLE  IF NOT EXISTS "main"."code_sms_events" '''
         '''(code_sms_events_idn INTEGER PRIMARY KEY  NOT NULL  UNIQUE , '''
@@ -302,6 +307,12 @@ DataBaseEntity(
 # For Schedule Missed in code events table
 DataBaseEntity(
     query='''INSERT INTO "main"."code_sms_events" ("code_events_idn") VALUES (3);''',
+    desc='''Data Load for code_sms_events table'''
+)
+
+# For Schedule always on in code events table
+DataBaseEntity(
+    query='''INSERT INTO "main"."code_sms_events" ("code_events_idn") VALUES (4);''',
     desc='''Data Load for code_sms_events table'''
 )
 
