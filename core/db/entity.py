@@ -43,8 +43,8 @@ class UserEntity(Base):
     phone_no1 = Column(String, nullable=False)
     phone_no2 = Column(String, nullable=True)
     email_id = Column(String, nullable=True)
-    crt_dt = Column(DateTime, default=datetime.datetime.utcnow)
-    upd_dt = Column(DateTime, default=datetime.datetime.utcnow)
+    crt_dt = Column(DateTime, default=datetime.datetime.now)
+    upd_dt = Column(DateTime, default=datetime.datetime.now)
     is_active = Column(Integer, nullable=True, default=1)
     email_id = Column(String, nullable=True)
 
@@ -55,8 +55,8 @@ class CodeStatusEntity(Base):
 
     status_idn = Column(Integer, primary_key=True)
     status = Column(String, nullable=False)
-    crt_dt = Column(DateTime, default=datetime.datetime.utcnow)
-    upd_dt = Column(DateTime, default=datetime.datetime.utcnow)
+    crt_dt = Column(DateTime, default=datetime.datetime.now)
+    upd_dt = Column(DateTime, default=datetime.datetime.now)
 
 class UserSessionEntity(Base):
     __tablename__ = 'user_session'
@@ -66,7 +66,7 @@ class UserSessionEntity(Base):
     client_ip = Column(String, nullable=False)
     browser_name = Column(String, nullable=True)
     browser_version = Column(String, nullable=True)
-    attempted_on = Column(DateTime, default=datetime.datetime.utcnow)
+    attempted_on = Column(DateTime, default=datetime.datetime.now)
     status_idn = Column(Integer, ForeignKey('code_status.status_idn'))
     unique_session_cd = Column(String, nullable=True)
     is_active = Column(Integer, nullable=False, default=1)
@@ -78,7 +78,7 @@ class UserActivityEntity(Base):
 
     user_activity_idn = Column(Integer, primary_key=True)
     is_authorized = Column(Integer, nullable=False)
-    crt_dt = Column(DateTime, default=datetime.datetime.utcnow)
+    crt_dt = Column(DateTime, default=datetime.datetime.now)
     status_idn = Column(Integer, ForeignKey('code_status.status_idn'))
     user_session_idn = Column(Integer, ForeignKey('user_session.user_session_idn'))
 
@@ -87,8 +87,8 @@ class CodeScheduleTypeEntity(Base):
 
     schedule_type_idn = Column(Integer, primary_key=True)
     schedule_type = Column(String, nullable=False)
-    crt_dt = Column(DateTime, default=datetime.datetime.utcnow)
-    upd_dt = Column(DateTime, default=datetime.datetime.utcnow)
+    crt_dt = Column(DateTime, default=datetime.datetime.now)
+    upd_dt = Column(DateTime, default=datetime.datetime.now)
 
 class JobDetailsEntity(Base):
     __tablename__ = 'job_details'
@@ -96,15 +96,15 @@ class JobDetailsEntity(Base):
     job_details_idn = Column(Integer, primary_key=True)
     job_id = Column(String, nullable=False)
     schedule_type_idn = Column(Integer, ForeignKey('code_schedule_type.schedule_type_idn'))
-    start_date = Column(DateTime, default=datetime.datetime.utcnow)
+    start_date = Column(DateTime, default=datetime.datetime.now)
     recurrence = Column(String, nullable=True)
     day_of_week = Column(String, nullable=True)
     params = Column(String, nullable=True)
     next_run_time = Column(String, nullable=True)
     is_active = Column(Integer, nullable=False, default=1)
     user_idn = Column(Integer, ForeignKey('user.user_idn'))
-    crt_dt = Column(DateTime, default=datetime.datetime.utcnow)
-    upd_dt = Column(DateTime, default=datetime.datetime.utcnow)
+    crt_dt = Column(DateTime, default=datetime.datetime.now)
+    upd_dt = Column(DateTime, default=datetime.datetime.now)
 
 class JobRunLogEntity(Base):
     __tablename__ = 'job_run_log'
@@ -114,8 +114,8 @@ class JobRunLogEntity(Base):
     status_idn = Column(Integer, ForeignKey('code_status.status_idn'))
     message = Column(String, nullable=True)
     error_trace = Column(String, nullable=True)
-    crt_dt = Column(DateTime, default=datetime.datetime.utcnow)
-    upd_dt = Column(DateTime, default=datetime.datetime.utcnow)
+    crt_dt = Column(DateTime, default=datetime.datetime.now)
+    upd_dt = Column(DateTime, default=datetime.datetime.now)
 
 class TransOtpEntity(Base):
     __tablename__ = 'trans_otp'
@@ -124,7 +124,7 @@ class TransOtpEntity(Base):
     otp_code = Column(Integer, nullable=False)
     status_idn = Column(Integer, ForeignKey('code_status.status_idn'))
     user_idn = Column(Integer, ForeignKey('user.user_idn'))
-    crt_dt = Column(DateTime, default=datetime.datetime.utcnow)
+    crt_dt = Column(DateTime, default=datetime.datetime.now)
 
 class TransSmsEntity(Base):
     __tablename__ = 'trans_sms'
@@ -132,7 +132,7 @@ class TransSmsEntity(Base):
     trans_sms_idn = Column(Integer, primary_key=True)
     message = Column(String, nullable=False)
     user_idn = Column(Integer, ForeignKey('user.user_idn'))
-    crt_dt = Column(DateTime, default=datetime.datetime.utcnow)
+    crt_dt = Column(DateTime, default=datetime.datetime.now)
 
 class CodeEventsEntity(Base):
     __tablename__ = 'code_events'
