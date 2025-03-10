@@ -16,4 +16,4 @@ dependencies = []
 packages = ["core.db"]
 
 [project.scripts]
-migrate_database = "core.db.cli:apply_migrations"
+db-migrate = "core.db.cli:apply_migrations"
