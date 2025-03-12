@@ -56,6 +56,7 @@ def field_unique_id():
     return sa.Column(
         'unique_id',
         UUID(as_uuid=True),
+        unique=True,
         nullable=False,
         server_default=sa.text("gen_random_uuid()")
     )
