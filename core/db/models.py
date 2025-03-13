@@ -16,6 +16,8 @@ import datetime
 
 # ----------- START: Third Party Imports ---------- #
 import sqlalchemy as sa
+
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 # ----------- END: Third Party Imports ---------- #
 
@@ -59,3 +61,25 @@ class UserModel(DeclarativeBase):
     is_active = model_is_active()
     created_date = model_created_date()
     updated_date = model_updated_date()
+
+    # Relationship for easy access
+    contacts = relationship("UserContactModel")  # , back_populates="user")
+
+
+# Define the User model
+class UserContactModel(DeclarativeBase):
+
+    __tablename__ = "user_contact"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_contact_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    category = sa.Column(sa.String(16), nullable=False)
+    value = sa.Column(sa.String(128), nullable=False)
+    is_primary = sa.Column(sa.Boolean, nullable=False)
+    whatsapp_consent = sa.Column(sa.Boolean, nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
