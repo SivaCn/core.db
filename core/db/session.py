@@ -82,7 +82,7 @@ master_engine = create_async_engine(
     pool_size=POOL_SIZE,
     max_overflow=MAX_OVERFLOW,
     future=True,
-    echo=True
+    echo=db_config.verbose,
 )
 
 # Replica Database Engine (Read-Only)
@@ -91,7 +91,7 @@ replica_engine = create_async_engine(
     pool_size=POOL_SIZE,
     max_overflow=MAX_OVERFLOW,
     future=True,
-    echo=True
+    echo=db_config.verbose,
 )
 
 # Session Makers
@@ -111,6 +111,7 @@ class ReadOnlySession(AsyncSession):
 
     def commit(self, *args, **kwargs):
         raise RuntimeError("Cannot commit on a read-only session!")
+
 
 AsyncSessionLocalReplica = sessionmaker(
     bind=replica_engine,
