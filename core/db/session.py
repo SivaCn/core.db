@@ -15,15 +15,15 @@ import os
 # ----------- END: Native Imports ---------- #
 
 # ----------- START: Third Party Imports ---------- #
-from alembic import command
 from alembic.config import Config
 
 from contextlib import asynccontextmanager
 
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    async_sessionmaker,
     AsyncSession,
+
+    create_async_engine,
 )
 # ----------- END: Third Party Imports ---------- #
 
@@ -34,11 +34,19 @@ from core.utils.helpers.environ import (
     get_build_path,
     get_build_config,
 )
+
+from core.utils.helpers.utils import (
+    DotDict,
+)
 # ----------- END: In-App Imports ---------- #
 
 __all__ = [
     # All public symbols go here.
 ]
+
+
+POOL_SIZE = 10  # Number of connections in the pool
+MAX_OVERFLOW = 5  # Allow extra connections temporarily
 
 
 alembic_config_path = os.path.join(
@@ -54,47 +62,81 @@ database_url = alembic_cfg.get_main_option('sqlalchemy.url')
 
 db_config = get_build_config(section='database')
 
+DB_MASTER_URL = database_url.format(
+    **{
+        'dialect': const_db.READ_WRITE_DB_URL_DIALECT,
+        **db_config.master.as_dict()
+    }
+)
+
+DB_REPLICA_URL = database_url.format(
+    **{
+        'dialect': const_db.READ_WRITE_DB_URL_DIALECT,
+        **db_config.replica.as_dict()
+    }
+)
+
+# Master Database Engine (Read & Write)
+master_engine = create_async_engine(
+    DB_MASTER_URL,
+    pool_size=POOL_SIZE,
+    max_overflow=MAX_OVERFLOW,
+    future=True,
+    echo=True
+)
+
+# Replica Database Engine (Read-Only)
+replica_engine = create_async_engine(
+    DB_REPLICA_URL,
+    pool_size=POOL_SIZE,
+    max_overflow=MAX_OVERFLOW,
+    future=True,
+    echo=True
+)
+
+# Session Makers
+AsyncSessionLocalMaster = sessionmaker(
+    bind=master_engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+
+class ReadOnlySession(AsyncSession):
+    def add(self, *args, **kwargs):
+        raise RuntimeError("Cannot add objects on a read-only session!")
+
+    def flush(self, *args, **kwargs):
+        raise RuntimeError("Cannot flush on a read-only session!")
+
+    def commit(self, *args, **kwargs):
+        raise RuntimeError("Cannot commit on a read-only session!")
+
+AsyncSessionLocalReplica = sessionmaker(
+    bind=replica_engine,
+    class_=ReadOnlySession,
+    expire_on_commit=False
+)
+
 
 @asynccontextmanager
-async def get_write_session():
-    """Dependency to get a write (primary) database session."""
+async def get_db_sessions():
+    """Provides both master and replica database sessions."""
 
-    db_write_url = database_url.format(
-        **{
-            'dialect': const_db.READ_WRITE_DB_URL_DIALECT,
-            **db_config.master.as_dict()
-        }
-    )
-    engine_write = create_async_engine(db_write_url, echo=True)
-    SessionLocalWrite = async_sessionmaker(bind=engine_write, class_=AsyncSession, expire_on_commit=False)
+    master_session: AsyncSession = AsyncSessionLocalMaster()
+    replica_session: AsyncSession = AsyncSessionLocalReplica()
 
-    session = SessionLocalWrite()
     try:
-        yield session
-        await session.commit()  # Commit only write transactions
+        yield DotDict(
+            {"master": master_session, "replica": replica_session}
+        )
+        await master_session.commit()
+
     except Exception:
-        await session.rollback()
+        await master_session.rollback()
         raise
+
     finally:
-        await session.close()
-
-
-@asynccontextmanager
-async def get_read_session():
-    """Dependency to get a read (replica) database session."""
-
-    db_read_url = database_url.format(
-        **{
-            'dialect': const_db.READ_WRITE_DB_URL_DIALECT,
-            **db_config.replica.as_dict()
-        }
-    )
-    engine_read = create_async_engine(db_read_url, echo=True)
-    SessionLocalRead = async_sessionmaker(bind=engine_read, class_=AsyncSession, expire_on_commit=False)
-
-    session = SessionLocalRead()
-    try:
-        yield session  # No commit for read-only replica
-    finally:
-        await session.close()
+        await master_session.close()
+        await replica_session.close()
 

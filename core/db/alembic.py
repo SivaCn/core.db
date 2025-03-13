@@ -13,7 +13,7 @@
 # ----------- START: Native Imports ---------- #
 import uuid
 
-from datetime import datetime
+from datetime import datetime, UTC
 # ----------- END: Native Imports ---------- #
 
 # ----------- START: Third Party Imports ---------- #
@@ -91,3 +91,30 @@ def field_updated_date():
         onupdate=utc_now
     )
 
+
+model_unique_id = field_unique_id
+model_is_active = field_is_active
+
+def model_created_date():
+    """Helper function common created_date field.
+
+    Note: Use this for Models always
+    """
+    return sa.Column(
+        sa.DateTime,
+        default=lambda: datetime.now(UTC).replace(tzinfo=None),
+        nullable=False
+    )
+
+
+def model_updated_date():
+    """Helper function common updated_date field.
+
+    Note: Use this for Models always
+    """
+    return sa.Column(
+        sa.DateTime,
+        default=lambda: datetime.now(UTC).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(UTC).replace(tzinfo=None),
+        nullable=False
+    )
