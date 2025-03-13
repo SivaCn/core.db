@@ -27,6 +27,7 @@ from alembic.script import ScriptDirectory
 from core.utils.constants import const_db
 
 from core.utils.helpers.environ import (
+    ConsoleScript,
     get_build_path,
     get_build_config,
 )
@@ -97,6 +98,7 @@ def increment_revision(revision: str) -> str:
     return f"REV_{letters}_{num:04d}"
 
 
+@ConsoleScript
 def apply_migrations():
 
     parser = argparse.ArgumentParser(description="Database Migration Script.")
@@ -137,7 +139,7 @@ def apply_migrations():
         command.upgrade(alembic_cfg, 'head')
 
     elif args.current:
-        command.heads(alembic_cfg)
+        command.current(alembic_cfg)
 
     elif args.downgrade:
         command.downgrade(alembic_cfg, '-1')

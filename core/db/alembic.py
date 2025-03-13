@@ -63,7 +63,12 @@ def field_unique_id():
 
 def field_is_active():
     """Helper function for common is_active field fro table creation."""
-    return sa.Column('is_active', sa.String(1), nullable=False)
+    return sa.Column(
+        'is_active',
+        sa.String(1),
+        server_default=sa.text("'Y'"),
+        nullable=False
+    )
 
 
 def field_created_date():
