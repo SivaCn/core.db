@@ -17,7 +17,7 @@ import datetime
 # ----------- START: Third Party Imports ---------- #
 import sqlalchemy as sa
 
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 from sqlalchemy.ext.declarative import declarative_base
 # ----------- END: Third Party Imports ---------- #
 
@@ -25,7 +25,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from core.db.alembic import (
     #
     # Reusable Table Fields
-    model_unique_id,
+    model_slug,
     model_is_active,
     model_created_date,
     model_updated_date,
@@ -52,7 +52,7 @@ class UserModel(DeclarativeBase):
     __table_args__ = {"schema": BASE_SCHEMA}
 
     user_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
-    unique_id = model_unique_id()
+    user_slug = model_slug(field_name='user_slug')
     name = sa.Column(sa.String(128), nullable=True)
     father_name = sa.Column(sa.String(128), nullable=True)
     dob = sa.Column(sa.Date, nullable=True)
@@ -63,7 +63,7 @@ class UserModel(DeclarativeBase):
     updated_date = model_updated_date()
 
     # Relationship for easy access
-    contacts = relationship("UserContactModel")  # , back_populates="user")
+    contacts: Mapped[list["UserContactModel"]] = relationship("UserContactModel", back_populates="user")  # , back_populates="user")
 
 
 # Define the User model
@@ -77,9 +77,14 @@ class UserContactModel(DeclarativeBase):
     category = sa.Column(sa.String(16), nullable=False)
     value = sa.Column(sa.String(128), nullable=False)
     is_primary = sa.Column(sa.Boolean, nullable=False)
+    is_verified = sa.Column(sa.Boolean, nullable=False)
     whatsapp_consent = sa.Column(sa.Boolean, nullable=False)
 
     is_active = model_is_active()
     created_date = model_created_date()
     updated_date = model_updated_date()
+
+    # Relationship for easy access
+    user = relationship("UserModel")  # , back_populates="user")
+    user: Mapped["UserModel"] = relationship("UserModel", back_populates="contacts")  # , back_populates="user")
 

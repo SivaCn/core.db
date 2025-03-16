@@ -51,10 +51,10 @@ def utc_now():
     return datetime.now(pytz.utc)
 
 
-def field_unique_id():
+def field_slug(field_name: str):
     """Helper function for common unique_id field fro table creation."""
     return sa.Column(
-        'unique_id',
+        field_name,
         UUID(as_uuid=True),
         unique=True,
         nullable=False,
@@ -92,8 +92,9 @@ def field_updated_date():
     )
 
 
-model_unique_id = field_unique_id
+model_slug = field_slug
 model_is_active = field_is_active
+
 
 def model_created_date():
     """Helper function common created_date field.
