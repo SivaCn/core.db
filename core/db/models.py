@@ -17,6 +17,7 @@ import datetime
 # ----------- START: Third Party Imports ---------- #
 import sqlalchemy as sa
 
+from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import relationship, Mapped
 from sqlalchemy.ext.declarative import declarative_base
 # ----------- END: Third Party Imports ---------- #
@@ -43,6 +44,15 @@ __all__ = [
 
 # Define the base class for SQLAlchemy models
 DeclarativeBase = declarative_base()
+
+
+def model_as_dict(model_instance):
+    """Convert an SQLAlchemy model instance to a dictionary (excluding _sa_instance_state)."""
+
+    return {
+        column.key: getattr(model_instance, column.key)
+        for column in inspect(model_instance).mapper.column_attrs
+    }
 
 
 # Define the User model
@@ -76,9 +86,9 @@ class UserContactModel(DeclarativeBase):
     user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
     category = sa.Column(sa.String(16), nullable=False)
     value = sa.Column(sa.String(128), nullable=False)
-    is_primary = sa.Column(sa.Boolean, nullable=False)
-    is_verified = sa.Column(sa.Boolean, nullable=False)
-    whatsapp_consent = sa.Column(sa.Boolean, nullable=False)
+    is_primary = sa.Column(sa.Boolean, nullable=False, default=False)
+    is_verified = sa.Column(sa.Boolean, nullable=False, default=False)
+    whatsapp_consent = sa.Column(sa.Boolean, nullable=False, default=False)
 
     is_active = model_is_active()
     created_date = model_created_date()
