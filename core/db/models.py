@@ -68,6 +68,7 @@ class UserModel(DeclarativeBase):
     dob = sa.Column(sa.Date, nullable=True)
     gender = sa.Column(sa.String(16), nullable=True)
     is_nri = sa.Column(sa.Boolean, nullable=True)
+    religion = sa.Column(sa.String(16), nullable=True)
     is_active = model_is_active()
     created_date = model_created_date()
     updated_date = model_updated_date()
@@ -76,7 +77,7 @@ class UserModel(DeclarativeBase):
     contacts: Mapped[list["UserContactModel"]] = relationship("UserContactModel", back_populates="user")  # , back_populates="user")
 
 
-# Define the User model
+# Define the UserContact model
 class UserContactModel(DeclarativeBase):
 
     __tablename__ = "user_contact"
@@ -97,4 +98,159 @@ class UserContactModel(DeclarativeBase):
     # Relationship for easy access
     user = relationship("UserModel")  # , back_populates="user")
     user: Mapped["UserModel"] = relationship("UserModel", back_populates="contacts")  # , back_populates="user")
+
+
+# Define the Address model
+class AddressModel(DeclarativeBase):
+
+    __tablename__ = "address"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    address_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    line1 = sa.Column(sa.String(512), nullable=False)
+    line2 = sa.Column(sa.String(512), nullable=True)
+    city = sa.Column(sa.String(64), nullable=False)
+    state = sa.Column(sa.String(64), nullable=False)
+    country = sa.Column(sa.String(64), nullable=False)
+    postal_code = sa.Column(sa.Integer, nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the People model
+class PeopleModel(DeclarativeBase):
+
+    __tablename__ = "people"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    people_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    people_slug = model_slug(field_name='people_slug')
+    name = sa.Column(sa.String(128), nullable=True)
+    father_name = sa.Column(sa.String(128), nullable=True)
+    dob = sa.Column(sa.Date, nullable=True)
+    gender = sa.Column(sa.String(16), nullable=True)
+    is_nri = sa.Column(sa.Boolean, nullable=True)
+    religion = sa.Column(sa.String(16), nullable=True)
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the PeopleAddress model
+class PeopleAddressModel(DeclarativeBase):
+
+    __tablename__ = "people_address"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    people_address_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    people_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.people.people_id"), nullable=False)
+    address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.address.address_id"), nullable=False)
+    is_default = sa.Column(sa.Boolean, nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the PeopleIdentity model
+class PeopleIdentityModel(DeclarativeBase):
+
+    __tablename__ = "people_identity"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    people_identity_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    people_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.people.people_id"), nullable=False)
+    type = sa.Column(sa.String(64), nullable=False)
+    value = sa.Column(sa.String(64), nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the Charity model
+class CharityModel(DeclarativeBase):
+
+    __tablename__ = "charity"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    charity_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    charity_slug = model_slug(field_name='charity_slug')
+    name = sa.Column(sa.String(128), nullable=False)
+    contact_person = sa.Column(sa.String(128), nullable=True)
+    phone = sa.Column(sa.String(128), nullable=True)
+    email = sa.Column(sa.String(128), nullable=True)
+    website = sa.Column(sa.String(128), nullable=True)
+    notes = sa.Column(sa.String(10240), nullable=True)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the UserAddress model
+class userAddressModel(DeclarativeBase):
+
+    __tablename__ = "user_address"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_address_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.address.address_id"), nullable=False)
+    is_default = sa.Column(sa.Boolean, nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the UserPeople model
+class userPeopleModel(DeclarativeBase):
+
+    __tablename__ = "user_people"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_people_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    people_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.people.people_id"), nullable=False)
+    bond = sa.Column(sa.String(64), nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the Will model
+class WillModel(DeclarativeBase):
+
+    __tablename__ = "will"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    will_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    will_slug = model_slug(field_name='will_slug')
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    is_generated = sa.Column(sa.Boolean, nullable=False, default=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the WillProgress model
+class WillProgressModel(DeclarativeBase):
+
+    __tablename__ = "will_progress"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    will_progress_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    will_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.will.will_id"), nullable=False)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    current_stage = sa.Column(sa.String(128), nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
 
