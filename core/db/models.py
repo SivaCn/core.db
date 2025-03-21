@@ -191,7 +191,7 @@ class CharityModel(DeclarativeBase):
 
 
 # Define the UserAddress model
-class userAddressModel(DeclarativeBase):
+class UserAddressModel(DeclarativeBase):
 
     __tablename__ = "user_address"
     __table_args__ = {"schema": BASE_SCHEMA}
@@ -199,7 +199,7 @@ class userAddressModel(DeclarativeBase):
     user_address_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
     user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
     address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.address.address_id"), nullable=False)
-    is_default = sa.Column(sa.Boolean, nullable=False)
+    is_default = sa.Column(sa.Boolean, nullable=False, default=False)
 
     is_active = model_is_active()
     created_date = model_created_date()
