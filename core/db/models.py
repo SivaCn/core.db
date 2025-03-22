@@ -77,6 +77,100 @@ class UserModel(DeclarativeBase):
     contacts: Mapped[list["UserContactModel"]] = relationship("UserContactModel", back_populates="user")  # , back_populates="user")
 
 
+# Define the Role model
+class RoleModel(DeclarativeBase):
+
+    __tablename__ = "role"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    role_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    name = sa.Column(sa.String(128), nullable=False)
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the User_Role model
+class UserRoleModel(DeclarativeBase):
+
+    __tablename__ = "user_role"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_role_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    role_id = sa.Column(sa.Integer, sa.ForeignKey(f"{BASE_SCHEMA}.role.role_id"), nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the Feature model
+class FeatureModel(DeclarativeBase):
+
+    __tablename__ = "feature"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    feature_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    name = sa.Column(sa.String(128), nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the Plan model
+class PlanModel(DeclarativeBase):
+
+    __tablename__ = "plan"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    plan_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    name = sa.Column(sa.String(128), nullable=False)
+    price = sa.Column(sa.Float, nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the Plan_Feature model
+class PlanFeatureModel(DeclarativeBase):
+
+    __tablename__ = "plan_feature"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    plan_feature_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    plan_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.plan.plan_id"), nullable=False)
+    feature_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.feature.feature_id"), nullable=False)
+    access_limit = sa.Column(sa.Integer, nullable=False)
+    duration_unit = sa.Column(sa.String(32), nullable=False)
+    duration_value = sa.Column(sa.Integer, nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the purchase model
+class PurchaseModel(DeclarativeBase):
+
+    __tablename__ = "purchase"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    purchase_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    plan_feature_id = sa.Column(
+        sa.Integer, sa.ForeignKey(f"{BASE_SCHEMA}.plan_feature.plan_feature_id"), nullable=False
+    )
+    purchase_date = sa.Column(sa.DateTime, nullable=False)
+    expiry_date = sa.Column(sa.DateTime, nullable=False)
+
+    is_active = model_is_active()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
 # Define the UserContact model
 class UserContactModel(DeclarativeBase):
 
