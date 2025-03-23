@@ -19,6 +19,7 @@ import sqlalchemy as sa
 
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
 # ----------- END: Third Party Imports ---------- #
 
@@ -113,6 +114,7 @@ class FeatureModel(DeclarativeBase):
 
     feature_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     name = sa.Column(sa.String(128), nullable=False)
+    description = sa.Column(sa.String(1204), nullable=False)
 
     is_active = model_is_active()
     created_date = model_created_date()
@@ -127,11 +129,25 @@ class PlanModel(DeclarativeBase):
 
     plan_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     name = sa.Column(sa.String(128), nullable=False)
+    description = sa.Column(sa.String(1204), nullable=False)
     price = sa.Column(sa.Float, nullable=False)
+    is_listable = sa.Column(sa.Boolean, nullable=True, default=True)
+    is_recommended = sa.Column(sa.Boolean, nullable=True, default=False)
 
     is_active = model_is_active()
     created_date = model_created_date()
     updated_date = model_updated_date()
+
+    plan_features: Mapped[list["PlanFeatureModel"]] = relationship(
+        "PlanFeatureModel",
+        primaryjoin=(
+        "   and_("
+        "       PlanModel.plan_id == PlanFeatureModel.plan_id, "
+        "       PlanFeatureModel.is_active == 'Y'"
+        "   )"
+        ),
+        lazy='select'
+    )
 
 
 # Define the Plan_Feature model
@@ -150,6 +166,17 @@ class PlanFeatureModel(DeclarativeBase):
     is_active = model_is_active()
     created_date = model_created_date()
     updated_date = model_updated_date()
+
+    features: Mapped[list["FeatureModel"]] = relationship(
+        "FeatureModel",
+        primaryjoin=(
+        "   and_("
+        "       PlanFeatureModel.feature_id == FeatureModel.feature_id, "
+        "       FeatureModel.is_active == 'Y'"
+        "   )"
+        ),
+        lazy='select'
+    )
 
 
 # Define the purchase model
@@ -190,7 +217,7 @@ class UserContactModel(DeclarativeBase):
     updated_date = model_updated_date()
 
     # Relationship for easy access
-    user = relationship("UserModel")  # , back_populates="user")
+    # user = relationship("UserModel")  # , back_populates="user")
     user: Mapped["UserModel"] = relationship("UserModel", back_populates="contacts")  # , back_populates="user")
 
 
