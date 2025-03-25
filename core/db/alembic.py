@@ -52,7 +52,7 @@ def utc_now():
 
 
 def field_slug(field_name: str):
-    """Helper function for common unique_id field fro table creation."""
+    """Helper function for common unique_id field for table creation."""
     return sa.Column(
         field_name,
         UUID(as_uuid=True),
@@ -62,7 +62,7 @@ def field_slug(field_name: str):
     )
 
 def field_is_active():
-    """Helper function for common is_active field fro table creation."""
+    """Helper function for common is_active field for table creation."""
     return sa.Column(
         'is_active',
         sa.String(1),
@@ -71,8 +71,17 @@ def field_is_active():
     )
 
 
+def field_updated_by():
+    """Helper function for common updated_by field for table creation."""
+    return sa.Column(
+        'updated_by',
+        sa.BigInteger,
+        nullable=True
+    )
+
+
 def field_created_date():
-    """Helper function for common created_date field fro table creation."""
+    """Helper function for common created_date field for table creation."""
     return sa.Column(
         'created_date',
         sa.DateTime(timezone=False),
@@ -82,7 +91,7 @@ def field_created_date():
 
 
 def field_updated_date():
-    """Helper function for common updated_date field fro table creation."""
+    """Helper function for common updated_date field for table creation."""
     return sa.Column(
         'updated_date',
         sa.DateTime(timezone=False),
@@ -94,6 +103,7 @@ def field_updated_date():
 
 model_slug = field_slug
 model_is_active = field_is_active
+model_updated_by = field_updated_by
 
 
 def model_created_date():
