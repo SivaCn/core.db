@@ -76,7 +76,7 @@ def field_updated_by():
     return sa.Column(
         'updated_by',
         sa.BigInteger,
-        nullable=True
+        nullable=False
     )
 
 

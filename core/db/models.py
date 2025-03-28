@@ -29,6 +29,7 @@ from core.db.alembic import (
     # Reusable Table Fields
     model_slug,
     model_is_active,
+    model_updated_by,
     model_created_date,
     model_updated_date,
 
@@ -71,6 +72,7 @@ class UserModel(DeclarativeBase):
     is_nri = sa.Column(sa.Boolean, nullable=True)
     religion = sa.Column(sa.String(16), nullable=True)
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -87,6 +89,7 @@ class RoleModel(DeclarativeBase):
     role_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     name = sa.Column(sa.String(128), nullable=False)
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -102,6 +105,7 @@ class UserRoleModel(DeclarativeBase):
     role_id = sa.Column(sa.Integer, sa.ForeignKey(f"{BASE_SCHEMA}.role.role_id"), nullable=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -117,6 +121,7 @@ class FeatureModel(DeclarativeBase):
     description = sa.Column(sa.String(1204), nullable=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -133,8 +138,11 @@ class PlanModel(DeclarativeBase):
     price = sa.Column(sa.Float, nullable=False)
     is_listable = sa.Column(sa.Boolean, nullable=True, default=True)
     is_recommended = sa.Column(sa.Boolean, nullable=True, default=False)
+    duration_unit = sa.Column(sa.String(32), nullable=False)
+    duration_value = sa.Column(sa.Integer, nullable=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -160,10 +168,9 @@ class PlanFeatureModel(DeclarativeBase):
     plan_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.plan.plan_id"), nullable=False)
     feature_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.feature.feature_id"), nullable=False)
     access_limit = sa.Column(sa.Integer, nullable=False)
-    duration_unit = sa.Column(sa.String(32), nullable=False)
-    duration_value = sa.Column(sa.Integer, nullable=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -194,6 +201,7 @@ class PurchaseModel(DeclarativeBase):
     expiry_date = sa.Column(sa.DateTime, nullable=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -213,6 +221,7 @@ class UserContactModel(DeclarativeBase):
     whatsapp_consent = sa.Column(sa.Boolean, nullable=False, default=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -236,6 +245,7 @@ class AddressModel(DeclarativeBase):
     postal_code = sa.Column(sa.Integer, nullable=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -255,6 +265,7 @@ class PeopleModel(DeclarativeBase):
     is_nri = sa.Column(sa.Boolean, nullable=True)
     religion = sa.Column(sa.String(16), nullable=True)
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -271,6 +282,7 @@ class PeopleAddressModel(DeclarativeBase):
     is_default = sa.Column(sa.Boolean, nullable=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -287,6 +299,7 @@ class PeopleIdentityModel(DeclarativeBase):
     value = sa.Column(sa.String(64), nullable=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -307,6 +320,7 @@ class CharityModel(DeclarativeBase):
     notes = sa.Column(sa.String(10240), nullable=True)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -323,6 +337,7 @@ class UserAddressModel(DeclarativeBase):
     is_default = sa.Column(sa.Boolean, nullable=False, default=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -339,6 +354,7 @@ class userPeopleModel(DeclarativeBase):
     bond = sa.Column(sa.String(64), nullable=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -355,6 +371,7 @@ class WillModel(DeclarativeBase):
     is_generated = sa.Column(sa.Boolean, nullable=False, default=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
@@ -371,6 +388,7 @@ class WillProgressModel(DeclarativeBase):
     current_stage = sa.Column(sa.String(128), nullable=False)
 
     is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
