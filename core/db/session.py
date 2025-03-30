@@ -49,27 +49,16 @@ POOL_SIZE = 10  # Number of connections in the pool
 MAX_OVERFLOW = 5  # Allow extra connections temporarily
 
 
-alembic_config_path = os.path.join(
-    get_build_path(), 'files', 'config', 'migrations.ini'
-)
-
-if not os.path.exists(alembic_config_path):
-    raise FileNotFoundError(f"File '{alembic_config_path}' does not exist !")
-
-alembic_cfg = Config(alembic_config_path)
-
-database_url = alembic_cfg.get_main_option('sqlalchemy.url')
-
 db_config = get_build_config(section='database')
 
-DB_MASTER_URL = database_url.format(
+DB_MASTER_URL = const_db.DATABASE_URL.format(
     **{
         'dialect': const_db.READ_WRITE_DB_URL_DIALECT,
         **db_config.master.as_dict()
     }
 )
 
-DB_REPLICA_URL = database_url.format(
+DB_REPLICA_URL = const_db.DATABASE_URL.format(
     **{
         'dialect': const_db.READ_WRITE_DB_URL_DIALECT,
         **db_config.replica.as_dict()
