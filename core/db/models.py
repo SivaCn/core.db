@@ -18,6 +18,7 @@ import datetime
 import sqlalchemy as sa
 
 from sqlalchemy.inspection import inspect
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import relationship, Mapped
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
@@ -57,6 +58,23 @@ def model_as_dict(model_instance):
     }
 
 
+# Define the Organization Model
+class OrganizationModel(DeclarativeBase):
+
+    __tablename__ = "organization"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    organization_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    organization_slug = model_slug(field_name='organization_slug')
+    name = sa.Column(sa.String(256), nullable=False)
+    is_verified = sa.Column(sa.Boolean, nullable=False, default=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
 # Define the User model
 class UserModel(DeclarativeBase):
 
@@ -71,6 +89,17 @@ class UserModel(DeclarativeBase):
     gender = sa.Column(sa.String(16), nullable=True)
     is_nri = sa.Column(sa.Boolean, nullable=True)
     religion = sa.Column(sa.String(16), nullable=True)
+
+    organization_id = sa.Column(
+        sa.BigInteger,
+        sa.ForeignKey(f"{BASE_SCHEMA}.organization.organization_id"),
+        nullable=True
+    )
+    is_internal = sa.Column(sa.Boolean, nullable=False, default=False)
+    is_verified = sa.Column(sa.Boolean, nullable=False, default=False)
+    password_hash = sa.Column(sa.String(256), nullable=True)
+    password_expires_after = sa.Column(sa.DateTime, nullable=True)
+
     is_active = model_is_active()
     updated_by = model_updated_by()
     created_date = model_created_date()
@@ -78,6 +107,27 @@ class UserModel(DeclarativeBase):
 
     # Relationship for easy access
     contacts: Mapped[list["UserContactModel"]] = relationship("UserContactModel", back_populates="user")  # , back_populates="user")
+
+
+# Define the User model
+class UserInviteModel(DeclarativeBase):
+
+    __tablename__ = "user_invite"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_invite_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    token = sa.Column(sa.String(512), nullable=False)
+    email = sa.Column(sa.String(256), nullable=False)
+
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    roles = sa.Column(postgresql.ARRAY(sa.String), nullable=False)
+    status = sa.Column(sa.String(64), nullable=False)
+    expires_after = sa.Column(sa.DateTime, nullable=False)
+
+    invited_by = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+
+    created_date = model_created_date()
+    updated_date = model_updated_date()
 
 
 # Define the Role model
