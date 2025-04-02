@@ -98,6 +98,7 @@ class UserModel(DeclarativeBase):
     is_internal = sa.Column(sa.Boolean, nullable=False, default=False)
     is_verified = sa.Column(sa.Boolean, nullable=False, default=False)
     password_hash = sa.Column(sa.String(256), nullable=True)
+    password_hash_algo = sa.Column(sa.String(10240), nullable=True)
     password_expires_after = sa.Column(sa.DateTime, nullable=True)
 
     is_active = model_is_active()
