@@ -224,8 +224,10 @@ class PlanModel(DeclarativeBase):
     __table_args__ = {"schema": BASE_SCHEMA}
 
     plan_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    plan_slug = model_slug(field_name='plan_slug')
     name = sa.Column(sa.String(128), nullable=False)
     description = sa.Column(sa.String(1204), nullable=False)
+    category = sa.Column(sa.String(16), nullable=False)
     price = sa.Column(sa.Float, nullable=False)
     is_listable = sa.Column(sa.Boolean, nullable=True, default=True)
     is_recommended = sa.Column(sa.Boolean, nullable=True, default=False)
