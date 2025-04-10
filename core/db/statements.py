@@ -14,6 +14,7 @@ from typing import Optional, List
 # ----------- END: Native Imports ---------- #
 
 # ----------- START: Third Party Imports ---------- #
+from sqlalchemy import inspect, String, Text, Unicode, UnicodeText
 from sqlalchemy import desc, or_, and_, update
 from sqlalchemy.future import select
 # ----------- END: Third Party Imports ---------- #
@@ -34,14 +35,24 @@ from core.db.models import (
     PlanModel,
     FeatureModel,
     PlanFeatureModel,
+
+    CouponModel,
 )
 
 from core.utils.constants import (
     const_business,
+    const_operators,
 )
 
 from core.utils.helpers.date import (
     utc_now,
+)
+
+from web.backend.common import (
+    DateFilter,
+    StringFilter,
+    NumericFilter,
+    CouponDiscountTypeEnum,
 )
 # ----------- END: In-App Imports ---------- #
 
@@ -50,13 +61,63 @@ __all__ = [
 ]
 
 
+def prepare_where_expression(field, operator, value, case_insensitive=True):
+    """Custom where clause expression builder.
+
+    Usage:
+        >>> prepare_where_expression(field=CouponModel.discount, operator='=', value=100)
+        <sqlalchemy.sql.elements.BinaryExpression object at 0x795f1e774350>
+        >>>
+        >>> str(prepare_where_expression(field=CouponModel.discount, operator='=', value=100))
+        'base_schema.coupon.discount = :discount_1'
+    """
+
+    operator_func = {
+        const_operators.EQUAL: '__eq__',
+        const_operators.NOT_EQUAL: '__ne__',
+        const_operators.LESS_THAN: '__lt__',
+        const_operators.LESS_THAN_OR_EQUAL: '__le__',
+        const_operators.GREATER_THAN: '__gt__',
+        const_operators.GREATER_THAN_OR_EQUAL: '__ge__',
+        const_operators.CONTAINS: 'icontains',
+    }.get(operator)
+
+    if not operator_func:
+        raise Exception(f"Operator: '{operator}', is not supported")
+
+    if case_insensitive:
+        if isinstance(field.type, (String, Text, Unicode, UnicodeText, )):
+            #
+            # Make Case-insensitive searches for String Fields.
+            if operator in (const_operators.EQUAL, ):
+                operator_func = 'ilike'
+            if operator in (const_operators.NOT_EQUAL, ):
+                operator_func = 'notilike'
+
+    func = getattr(field, operator_func, None)
+    if not func:
+        raise Exception(
+            f"Attribute: '{field.name}', from Model: {field.class_.__name__}, does not support '{operator}'"
+        )
+
+    return func(value)
+
+
+def stmt_query_admin_user():
+    return select(
+        UserModel
+    ).where(
+        UserModel.is_internal == True,
+        UserModel.is_active == const_business.IS_ACTIVE_YES,
+    )
+
+
 def stmt_query_roles(is_active: Optional[bool] = None, name: Optional[List[str]] = None):
 
     stmt = select(RoleModel)
 
     if is_active is None:
         stmt = stmt.where(RoleModel.is_active == const_business.IS_ACTIVE_YES)
-
     elif isinstance(is_active, bool):
         _is_active = const_business.IS_ACTIVE_YES if is_active is True else const_business.IS_ACTIVE_NO
         stmt = stmt.where(RoleModel.is_active == _is_active)
@@ -194,7 +255,6 @@ def stmt_query_plan(
 
     if is_active is None:
         stmt = stmt.where(PlanModel.is_active == const_business.IS_ACTIVE_YES)
-
     elif isinstance(is_active, bool):
         _is_active = const_business.IS_ACTIVE_YES if is_active is True else const_business.IS_ACTIVE_NO
         stmt = stmt.where(PlanModel.is_active == _is_active)
@@ -274,7 +334,6 @@ def stmt_query_user_contact(
 
     if is_active is None:
         stmt = stmt.where(UserContactModel.is_active == const_business.IS_ACTIVE_YES)
-
     elif isinstance(is_active, bool):
         _is_active = const_business.IS_ACTIVE_YES if is_active is True else const_business.IS_ACTIVE_NO
         stmt = stmt.where(UserContactModel.is_active == _is_active)
@@ -292,4 +351,80 @@ def stmt_query_user_contact(
         stmt = stmt.where(UserContactModel.is_primary == is_primary)
 
     return stmt
+
+
+def stmt_query_coupon(
+        coupon_slug: Optional[StringFilter] = None,
+        code: Optional[StringFilter] = None,
+        discount_type: Optional[CouponDiscountTypeEnum] = None,
+        discount: Optional[NumericFilter] = None,
+        is_active: Optional[str] = None,
+        start_date: Optional[DateFilter] = None,
+        end_date: Optional[DateFilter] = None,
+        is_expired: Optional[bool] = None,
+        used_count: Optional[NumericFilter] = None):
+
+    stmt = select(CouponModel)
+
+    if coupon_slug:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=CouponModel.coupon_slug,
+                operator=coupon_slug.operator.value,
+                value=coupon_slug.value,
+                case_insensitive=False,
+            )
+        )
+
+    if is_active:
+        stmt = stmt.where(CouponModel.is_active == is_active)
+
+    if is_expired:
+        stmt = stmt.where(CouponModel.is_expired == is_expired)
+
+    if code:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=CouponModel.code, operator=code.operator.value, value=code.value
+            )
+        )
+
+    if discount_type:
+        stmt = stmt.where(CouponModel.discount_type == discount_type)
+
+    if discount:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=CouponModel.discount, operator=discount.operator.value, value=discount.value
+            )
+        )
+
+    if start_date:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=CouponModel.start_date, operator=start_date.operator.value, value=start_date.value
+            )
+        )
+
+    if end_date:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=CouponModel.end_date, operator=end_date.operator.value, value=end_date.value
+            )
+        )
+
+    if used_count:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=CouponModel.used_count, operator=used_count.operator.value, value=used_count.value
+            )
+        )
+
+    stmt = stmt.order_by(
+        desc(CouponModel.is_active),
+        CouponModel.is_expired,
+    )
+
+    return stmt
+
 
