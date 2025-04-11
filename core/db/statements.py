@@ -286,12 +286,30 @@ def stmt_query_plan(
     return stmt
 
 
-def stmt_query_user_invite(email: Optional[str] = None, user_schema: Optional[dict] = None):
+def stmt_query_user_invite(
+        is_active: Optional[str] = None,
+        user_id: Optional[int] = None,
+        status: Optional[List[str]] = None,
+        email: Optional[str] = None,
+        user_invite_slug: Optional[str] = None,
+        user_schema: Optional[dict] = None):
 
     stmt = select(UserInviteModel)
 
+    if is_active:
+        stmt = stmt.where(UserInviteModel.is_active == is_active)
+
+    if user_id:
+        stmt = stmt.where(UserInviteModel.user_id == user_id)
+
     if email:
         stmt = stmt.where(UserInviteModel.email == email)
+
+    if status:
+        stmt = stmt.where(UserInviteModel.status.in_(status))
+
+    if user_invite_slug:
+        stmt = stmt.where(UserInviteModel.user_invite_slug == user_invite_slug)
 
     if user_schema:
         join_where = [

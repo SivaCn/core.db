@@ -117,7 +117,8 @@ class UserInviteModel(DeclarativeBase):
     __table_args__ = {"schema": BASE_SCHEMA}
 
     user_invite_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
-    token = sa.Column(sa.String(512), nullable=False)
+    user_invite_slug = model_slug(field_name='user_invite_slug')
+    token = sa.Column(sa.String(10240), nullable=False)
     email = sa.Column(sa.String(256), nullable=False)
 
     user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
@@ -127,6 +128,8 @@ class UserInviteModel(DeclarativeBase):
 
     invited_by = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
 
+    is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 
