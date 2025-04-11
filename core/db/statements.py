@@ -103,13 +103,35 @@ def prepare_where_expression(field, operator, value, case_insensitive=True):
     return func(value)
 
 
-def stmt_query_admin_user():
-    return select(
-        UserModel
-    ).where(
-        UserModel.is_internal == True,
-        UserModel.is_active == const_business.IS_ACTIVE_YES,
-    )
+def stmt_query_admin_user(
+        user_slug: Optional[str] = None,
+        is_active: Optional[str] = None):
+
+    stmt = select(UserModel).where(UserModel.is_internal == True)
+
+    if user_slug:
+        stmt = stmt.where(UserModel.user_slug == user_slug)
+
+    if is_active:
+        stmt = stmt.where(UserModel.is_active == is_active)
+
+    return stmt
+
+
+def stmt_delete_user_roles(where: dict):
+
+    stmt = update(UserRoleModel)
+
+    #
+    # Build Where conditions
+    for field, value in where.items():
+        stmt = stmt.where(getattr(UserRoleModel, field) == value)
+
+    #
+    # Build susbtitute values
+    stmt = stmt.values(is_active=const_business.IS_ACTIVE_DELETED)
+
+    return stmt
 
 
 def stmt_query_roles(is_active: Optional[bool] = None, name: Optional[List[str]] = None):
