@@ -245,31 +245,43 @@ def stmt_delete_plan_feature(where: dict):
 
 
 def stmt_query_plan(
-        is_active: Optional[bool] = True,
-        plan_slug: Optional[str] = None,
-        name: Optional[str] = None,
+        is_active: Optional[str] = None,
+        plan_slug: Optional[StringFilter] = None,
+        name: Optional[StringFilter] = None,
         is_listable: Optional[bool] = None,
-        category: Optional[List[str]] = None):
+        category: Optional[StringFilter] = None):
 
     stmt = select(PlanModel)
 
-    if is_active is None:
-        stmt = stmt.where(PlanModel.is_active == const_business.IS_ACTIVE_YES)
-    elif isinstance(is_active, bool):
-        _is_active = const_business.IS_ACTIVE_YES if is_active is True else const_business.IS_ACTIVE_NO
-        stmt = stmt.where(PlanModel.is_active == _is_active)
+    if is_active:
+        stmt = stmt.where(PlanModel.is_active == is_active)
 
-    if plan_slug is not None:
-        stmt = stmt.where(PlanModel.plan_slug == plan_slug)
+    if plan_slug:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=PlanModel.plan_slug,
+                operator=plan_slug.operator.value,
+                value=plan_slug.value,
+                case_insensitive=False,
+            )
+        )
 
-    if name is not None:
-        stmt = stmt.where(PlanModel.name.ilike(f'%{name}%'))
+    if name:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=PlanModel.name, operator=name.operator.value, value=name.value
+            )
+        )
 
     if is_listable is not None:
         stmt = stmt.where(PlanModel.is_listable == is_listable)
 
-    if category is not None:
-        stmt = stmt.where(PlanModel.category == category)
+    if category:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=PlanModel.category, operator=category.operator.value, value=category.value
+            )
+        )
 
     return stmt
 
