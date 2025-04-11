@@ -437,6 +437,31 @@ def field_updated_date():
     )
 
 
+def field_hist_slug(field_name: str):
+    """Helper function for common unique_id field for table creation."""
+    return sa.Column(field_name, UUID(as_uuid=True), nullable=True)
+
+
+def field_hist_is_active():
+    """Helper function for common is_active field for table creation."""
+    return sa.Column('is_active', sa.String(1), nullable=True)
+
+
+def field_hist_updated_by():
+    """Helper function for common updated_by field for table creation."""
+    return sa.Column('updated_by', sa.BigInteger, nullable=True)
+
+
+def field_hist_created_date():
+    """Helper function for common created_date field for table creation."""
+    return sa.Column('created_date', sa.DateTime(timezone=False), nullable=True)
+
+
+def field_hist_updated_date():
+    """Helper function for common updated_date field for table creation."""
+    return sa.Column('updated_date', sa.DateTime(timezone=False), nullable=True)
+
+
 model_slug = field_slug
 model_is_active = field_is_active
 model_updated_by = field_updated_by
