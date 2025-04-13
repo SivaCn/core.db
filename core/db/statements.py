@@ -15,7 +15,7 @@ from typing import Optional, List
 
 # ----------- START: Third Party Imports ---------- #
 from sqlalchemy import inspect, String, Text, Unicode, UnicodeText
-from sqlalchemy import desc, or_, and_, update
+from sqlalchemy import update, func, desc, and_, or_
 from sqlalchemy.future import select
 # ----------- END: Third Party Imports ---------- #
 
@@ -44,11 +44,18 @@ from core.utils.constants import (
     const_operators,
 )
 
+from core.utils.helpers.utils import (
+    DotDict,
+)
+
 from core.utils.helpers.date import (
     utc_now,
 )
 
 from web.backend.common import (
+    PageArgs,
+    PagedType,
+
     DateFilter,
     StringFilter,
     NumericFilter,
@@ -59,6 +66,49 @@ from web.backend.common import (
 __all__ = [
     # All public symbols go here.
 ]
+
+
+def page_meta(count: int, items_per_page: int, current_page: int) -> dict:
+
+    total_pages = (count + items_per_page - 1) // items_per_page
+
+    return {
+        'is_first_page': current_page == 1,
+        'is_last_page': current_page == total_pages,
+        'has_previous_page': current_page > 1,
+        'has_next_page': current_page < total_pages,
+        'total_items': count,
+        'total_pages': total_pages,
+        'items_per_page': items_per_page,
+        'current_page': current_page
+    }
+
+
+async def paginate(session: DotDict, stmt, page_args: Optional[PageArgs] = None):
+
+    if page_args and page_args.items_per_page:
+        items_per_page = page_args.items_per_page
+    else:
+        items_per_page = const_business.DEFAULT_ITEMS_PER_PAGE
+
+    if page_args and page_args.current_page:
+        current_page = page_args.current_page
+    else:
+        current_page = const_business.DEFAULT_CURRENT_PAGE
+
+    count_stmt = select(func.count()).select_from(stmt.subquery())
+    count_cursor = await session.replica.execute(count_stmt)
+    count = count_cursor.scalars().one_or_none() or 0
+
+    offset = items_per_page * (current_page - 1)
+
+    data_stmt = stmt.limit(items_per_page).offset(offset)
+
+    paginated = PagedType(
+        **page_meta(count=count, items_per_page=items_per_page, current_page=current_page)
+    )
+
+    return paginated, data_stmt
 
 
 def prepare_where_expression(field, operator, value, case_insensitive=True):
