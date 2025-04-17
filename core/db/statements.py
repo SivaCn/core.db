@@ -129,6 +129,10 @@ def prepare_where_expression(field, operator, value, case_insensitive=True):
         const_operators.LESS_THAN_OR_EQUAL: '__le__',
         const_operators.GREATER_THAN: '__gt__',
         const_operators.GREATER_THAN_OR_EQUAL: '__ge__',
+
+        const_operators.IN: 'in_',
+        const_operators.NOT_IN: 'not_in',
+
         const_operators.CONTAINS: 'icontains',
     }.get(operator)
 
