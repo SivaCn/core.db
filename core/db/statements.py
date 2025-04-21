@@ -48,6 +48,10 @@ from core.utils.helpers.utils import (
     DotDict,
 )
 
+from core.utils.helpers.validators import (
+    validate_is_active,
+)
+
 from core.utils.helpers.date import (
     utc_now,
 )
@@ -188,15 +192,16 @@ def stmt_delete_user_roles(where: dict):
     return stmt
 
 
-def stmt_query_roles(is_active: Optional[bool] = None, name: Optional[List[str]] = None):
+def stmt_query_roles(
+        name: Optional[List[str]] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
 
     stmt = select(RoleModel)
 
-    if is_active is None:
-        stmt = stmt.where(RoleModel.is_active == const_business.IS_ACTIVE_YES)
-    elif isinstance(is_active, bool):
-        _is_active = const_business.IS_ACTIVE_YES if is_active is True else const_business.IS_ACTIVE_NO
-        stmt = stmt.where(RoleModel.is_active == _is_active)
+    if is_active:
+        if not validate_is_active(is_active):
+            raise Exception(f"Argument is_active '{is_active}', is not supported")
+        stmt = stmt.where(RoleModel.is_active == is_active)
 
     if name:
         stmt = stmt.where(RoleModel.name.in_(name))
@@ -434,15 +439,14 @@ def stmt_query_user_contact(
         category: Optional[str] = None,
         value: Optional[str] = None,
         is_primary: Optional[bool] = False,
-        is_active: Optional[bool] = None):
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
 
     stmt = select(UserContactModel)
 
-    if is_active is None:
-        stmt = stmt.where(UserContactModel.is_active == const_business.IS_ACTIVE_YES)
-    elif isinstance(is_active, bool):
-        _is_active = const_business.IS_ACTIVE_YES if is_active is True else const_business.IS_ACTIVE_NO
-        stmt = stmt.where(UserContactModel.is_active == _is_active)
+    if is_active:
+        if not validate_is_active(is_active):
+            raise Exception(f"Argument is_active '{is_active}', is not supported")
+        stmt = stmt.where(UserContactModel.is_active == is_active)
 
     if user_id:
         stmt = stmt.where(UserContactModel.user_id == user_id)
