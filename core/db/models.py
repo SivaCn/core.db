@@ -315,6 +315,50 @@ class CouponModel(DeclarativeBase):
     updated_date = model_updated_date()
 
 
+# Define the POC model
+class POCModel(DeclarativeBase):
+
+    __tablename__ = "poc"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    poc_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    poc_slug = model_slug(field_name='poc_slug')
+    name = sa.Column(sa.String(128), nullable=False)
+    phone = sa.Column(sa.String(32), nullable=True)
+    email = sa.Column(sa.String(128), nullable=True)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the ImmovableAsset model
+class ImmovableAssetModel(DeclarativeBase):
+
+    __tablename__ = "immovable_asset"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    immovable_asset_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    immovable_asset_slug = model_slug(field_name='immovable_asset_slug')
+    asset_type = sa.Column(sa.String(128), nullable=False)
+    asset_sub_type = sa.Column(sa.String(128), nullable=True)
+    survey_number = sa.Column(sa.String(128), nullable=True)
+    khatha_number = sa.Column(sa.String(128), nullable=True)
+    area = sa.Column(sa.String(128), nullable=True)
+    holding_type = sa.Column(sa.String(128), nullable=False)
+    value = sa.Column(sa.BigInteger, nullable=True)
+    notes = sa.Column(sa.String(10240), nullable=True)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
+    address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.address.address_id'), nullable=False)
+    poc_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.poc.poc_id'), nullable=True)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
 # Define the purchase model
 class PurchaseModel(DeclarativeBase):
 
@@ -366,6 +410,7 @@ class AddressModel(DeclarativeBase):
     __table_args__ = {"schema": BASE_SCHEMA}
 
     address_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    address_slug = model_slug(field_name='address_slug')
     line1 = sa.Column(sa.String(512), nullable=False)
     line2 = sa.Column(sa.String(512), nullable=True)
     city = sa.Column(sa.String(64), nullable=False)

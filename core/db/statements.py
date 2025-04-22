@@ -37,6 +37,10 @@ from core.db.models import (
     PlanFeatureModel,
 
     CouponModel,
+
+    POCModel,
+    AddressModel,
+    ImmovableAssetModel,
 )
 
 from core.utils.constants import (
@@ -537,4 +541,65 @@ def stmt_query_coupon(
 
     return stmt
 
+
+def stmt_query_poc(poc_id: NumericFilter):
+
+    stmt = select(POCModel)
+
+    stmt = stmt.where(
+        POCModel.is_active == const_business.IS_ACTIVE_YES,
+    )
+
+    stmt = stmt.where(
+        prepare_where_expression(
+            field=POCModel.poc_id, operator=poc_id.operator.value, value=poc_id.value
+        )
+    )
+
+    return stmt
+
+
+def stmt_query_address(address_id: NumericFilter):
+
+    stmt = select(AddressModel)
+
+    stmt = stmt.where(
+        AddressModel.is_active == const_business.IS_ACTIVE_YES,
+    )
+
+    stmt = stmt.where(
+        prepare_where_expression(
+            field=AddressModel.address_id, operator=address_id.operator.value, value=address_id.value
+        )
+    )
+
+    return stmt
+
+
+def stmt_query_immovable_asset(
+        immovable_asset_slug: Optional[str] = None,
+        asset_type: Optional[StringFilter] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        ImmovableAssetModel
+    ).where(
+        ImmovableAssetModel.is_active == is_active
+    )
+
+    if immovable_asset_slug:
+        stmt = stmt.where(
+            ImmovableAssetModel.immovable_asset_slug == immovable_asset_slug
+        )
+
+    if asset_type:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=ImmovableAssetModel.asset_type, operator=asset_type.operator.value, value=asset_type.value
+            )
+        )
+
+    stmt = stmt.order_by(ImmovableAssetModel.immovable_asset_id)
+
+    return stmt
 
