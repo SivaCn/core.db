@@ -84,7 +84,7 @@ class UserModel(DeclarativeBase):
     user_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
     user_slug = model_slug(field_name='user_slug')
     name = sa.Column(sa.String(128), nullable=True)
-    father_name = sa.Column(sa.String(128), nullable=True)
+    parent_name = sa.Column(sa.String(128), nullable=True)
     dob = sa.Column(sa.Date, nullable=True)
     gender = sa.Column(sa.String(16), nullable=True)
     is_nri = sa.Column(sa.Boolean, nullable=True)

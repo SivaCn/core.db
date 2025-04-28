@@ -22,6 +22,7 @@ from sqlalchemy.future import select
 # ----------- START: In-App Imports ---------- #
 from core.db.models import (
     UserModel,
+    UserAddressModel,
     UserContactModel,
 
     RoleModel,
@@ -591,6 +592,39 @@ def stmt_query_address(address_id: NumericFilter):
     )
 
     return stmt
+
+
+def stmt_query_user_address(user_id: int):
+
+   return select(
+        AddressModel
+    ).join(
+        UserAddressModel,
+        and_(
+            UserAddressModel.is_default == True,
+            UserAddressModel.is_active == const_business.IS_ACTIVE_YES,
+            UserAddressModel.address_id == AddressModel.address_id,
+        )
+    ).where(
+        UserAddressModel.user_id == user_id,
+    )
+
+
+def stmt_delete_user_address(where: dict):
+
+    stmt = update(UserAddressModel)
+
+    #
+    # Build Where conditions
+    for field, value in where.items():
+        stmt = stmt.where(getattr(UserAddressModel, field) == value)
+
+    #
+    # Build susbtitute values
+    stmt = stmt.values(is_active=const_business.IS_ACTIVE_DELETED)
+
+    return stmt
+
 
 
 def stmt_query_immovable_asset(
