@@ -282,7 +282,7 @@ class PlanFeatureModel(DeclarativeBase):
     # )
 
 
-# Define the Plan model
+# Define the Coupon model
 class CouponModel(DeclarativeBase):
 
     __tablename__ = "coupon"
@@ -308,6 +308,23 @@ class CouponModel(DeclarativeBase):
 
     # User targeting
     for_new_users_only = sa.Column(sa.Boolean, nullable=False, default=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the CouponPlan model
+class CouponPlanModel(DeclarativeBase):
+
+    __tablename__ = "coupon_plan"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    coupon_plan_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+
+    coupon_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.coupon.coupon_id'), nullable=False)
+    plan_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.plan.plan_id'), nullable=False)
 
     is_active = model_is_active()
     updated_by = model_updated_by()

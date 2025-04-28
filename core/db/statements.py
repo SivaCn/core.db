@@ -37,6 +37,7 @@ from core.db.models import (
     PlanFeatureModel,
 
     CouponModel,
+    CouponPlanModel,
 
     POCModel,
     AddressModel,
@@ -138,8 +139,8 @@ def prepare_where_expression(field, operator, value, case_insensitive=True):
         const_operators.GREATER_THAN: '__gt__',
         const_operators.GREATER_THAN_OR_EQUAL: '__ge__',
 
-        const_operators.IN: 'in_',
-        const_operators.NOT_IN: 'not_in',
+        const_operators.ANY: 'in_',
+        const_operators.NOT_ANY: 'not_in',
 
         const_operators.CONTAINS: 'icontains',
     }.get(operator)
@@ -367,6 +368,22 @@ def stmt_query_plan(
                 field=PlanModel.category, operator=category.operator.value, value=category.value
             )
         )
+
+    return stmt
+
+
+def stmt_delete_coupon_plan(where: dict):
+
+    stmt = update(CouponPlanModel)
+
+    #
+    # Build Where conditions
+    for field, value in where.items():
+        stmt = stmt.where(getattr(CouponPlanModel, field) == value)
+
+    #
+    # Build susbtitute values
+    stmt = stmt.values(is_active=const_business.IS_ACTIVE_DELETED)
 
     return stmt
 
