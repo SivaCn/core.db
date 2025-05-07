@@ -450,27 +450,13 @@ class PeopleModel(DeclarativeBase):
     people_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
     people_slug = model_slug(field_name='people_slug')
     name = sa.Column(sa.String(128), nullable=True)
-    father_name = sa.Column(sa.String(128), nullable=True)
+    parent_name = sa.Column(sa.String(128), nullable=True)
     dob = sa.Column(sa.Date, nullable=True)
     gender = sa.Column(sa.String(16), nullable=True)
     is_nri = sa.Column(sa.Boolean, nullable=True)
     religion = sa.Column(sa.String(16), nullable=True)
-    is_active = model_is_active()
-    updated_by = model_updated_by()
-    created_date = model_created_date()
-    updated_date = model_updated_date()
 
-
-# Define the PeopleAddress model
-class PeopleAddressModel(DeclarativeBase):
-
-    __tablename__ = "people_address"
-    __table_args__ = {"schema": BASE_SCHEMA}
-
-    people_address_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
-    people_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.people.people_id"), nullable=False)
     address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.address.address_id"), nullable=False)
-    is_default = sa.Column(sa.Boolean, nullable=False)
 
     is_active = model_is_active()
     updated_by = model_updated_by()
@@ -486,8 +472,8 @@ class PeopleIdentityModel(DeclarativeBase):
 
     people_identity_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
     people_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.people.people_id"), nullable=False)
-    type = sa.Column(sa.String(64), nullable=False)
-    value = sa.Column(sa.String(64), nullable=False)
+    id_type = sa.Column(sa.String(64), nullable=False)
+    id_value = sa.Column(sa.String(64), nullable=False)
 
     is_active = model_is_active()
     updated_by = model_updated_by()
@@ -534,7 +520,7 @@ class UserAddressModel(DeclarativeBase):
 
 
 # Define the UserPeople model
-class userPeopleModel(DeclarativeBase):
+class UserPeopleModel(DeclarativeBase):
 
     __tablename__ = "user_people"
     __table_args__ = {"schema": BASE_SCHEMA}
@@ -542,7 +528,8 @@ class userPeopleModel(DeclarativeBase):
     user_people_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
     user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
     people_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.people.people_id"), nullable=False)
-    bond = sa.Column(sa.String(64), nullable=False)
+    relation = sa.Column(sa.String(64), nullable=False)
+    association = sa.Column(sa.String(64), nullable=False)
 
     is_active = model_is_active()
     updated_by = model_updated_by()

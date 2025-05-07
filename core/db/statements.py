@@ -43,6 +43,10 @@ from core.db.models import (
     POCModel,
     AddressModel,
     ImmovableAssetModel,
+
+    PeopleModel,
+    UserPeopleModel,
+    PeopleIdentityModel,
 )
 
 from core.utils.constants import (
@@ -610,6 +614,25 @@ def stmt_query_user_address(user_id: int):
     )
 
 
+def stmt_delete_address(where: dict, updated_by: int):
+
+    stmt = update(AddressModel)
+
+    #
+    # Build Where conditions
+    for field, value in where.items():
+        stmt = stmt.where(getattr(AddressModel, field) == value)
+
+    #
+    # Build susbtitute values
+    stmt = stmt.values(
+        updated_by=updated_by,
+        is_active=const_business.IS_ACTIVE_DELETED
+    )
+
+    return stmt
+
+
 def stmt_delete_user_address(where: dict):
 
     stmt = update(UserAddressModel)
@@ -653,4 +676,70 @@ def stmt_query_immovable_asset(
     stmt = stmt.order_by(ImmovableAssetModel.immovable_asset_id)
 
     return stmt
+
+
+def stmt_query_user_people(user_id: Optional[int] = None, people_id: Optional[int] = None):
+
+    stmt = select(
+        UserPeopleModel
+    ).where(
+        UserPeopleModel.is_active == const_business.IS_ACTIVE_YES,
+    )
+
+    if user_id:
+        stmt = stmt.where(UserPeopleModel.user_id == user_id)
+
+    if people_id:
+        stmt = stmt.where(UserPeopleModel.people_id == people_id)
+
+    return stmt
+
+
+def stmt_query_people(people_id: Optional[int] = None, people_slug: Optional[str] = None):
+
+    stmt = select(
+        PeopleModel
+    ).where(
+        PeopleModel.is_active == const_business.IS_ACTIVE_YES,
+    )
+
+    if people_id:
+        stmt = stmt.where(PeopleModel.people_id == people_id)
+
+    if people_slug:
+        stmt = stmt.where(PeopleModel.people_slug == people_slug)
+
+    return stmt
+
+
+def stmt_query_latest_people_identity(people_id: int):
+
+    return select(
+        PeopleIdentityModel
+    ).where(
+        PeopleIdentityModel.people_id == people_id,
+        PeopleIdentityModel.is_active == const_business.IS_ACTIVE_YES,
+    ).order_by(
+        desc(PeopleIdentityModel.people_identity_id)
+    ).limit(1)
+
+
+def stmt_delete_people_identity(where: dict, updated_by: int):
+
+    stmt = update(PeopleIdentityModel)
+
+    #
+    # Build Where conditions
+    for field, value in where.items():
+        stmt = stmt.where(getattr(PeopleIdentityModel, field) == value)
+
+    #
+    # Build susbtitute values
+    stmt = stmt.values(
+        updated_by=updated_by,
+        is_active=const_business.IS_ACTIVE_DELETED,
+    )
+
+    return stmt
+
 
