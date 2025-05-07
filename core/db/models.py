@@ -490,11 +490,28 @@ class CharityModel(DeclarativeBase):
     charity_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
     charity_slug = model_slug(field_name='charity_slug')
     name = sa.Column(sa.String(128), nullable=False)
-    contact_person = sa.Column(sa.String(128), nullable=True)
+    point_of_contact = sa.Column(sa.String(128), nullable=True)
     phone = sa.Column(sa.String(128), nullable=True)
     email = sa.Column(sa.String(128), nullable=True)
     website = sa.Column(sa.String(128), nullable=True)
     notes = sa.Column(sa.String(10240), nullable=True)
+    address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.address.address_id"), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the UserCharity model
+class UserCharityModel(DeclarativeBase):
+
+    __tablename__ = "user_charity"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_charity_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    charity_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.charity.charity_id"), nullable=False)
 
     is_active = model_is_active()
     updated_by = model_updated_by()

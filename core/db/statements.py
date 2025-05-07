@@ -47,6 +47,9 @@ from core.db.models import (
     PeopleModel,
     UserPeopleModel,
     PeopleIdentityModel,
+
+    CharityModel,
+    UserCharityModel,
 )
 
 from core.utils.constants import (
@@ -742,4 +745,37 @@ def stmt_delete_people_identity(where: dict, updated_by: int):
 
     return stmt
 
+
+def stmt_query_charity(charity_id: Optional[int] = None, charity_slug: Optional[str] = None):
+
+    stmt = select(
+        CharityModel
+    ).where(
+        CharityModel.is_active == const_business.IS_ACTIVE_YES,
+    )
+
+    if charity_id:
+        stmt = stmt.where(CharityModel.charity_id == charity_id)
+
+    if charity_slug:
+        stmt = stmt.where(CharityModel.charity_slug == charity_slug)
+
+    return stmt
+
+
+def stmt_query_user_charity(user_id: Optional[int] = None, charity_id: Optional[int] = None):
+
+    stmt = select(
+        UserCharityModel
+    ).where(
+        UserCharityModel.is_active == const_business.IS_ACTIVE_YES
+    )
+
+    if user_id:
+        stmt = stmt.where(UserCharityModel.user_id == user_id)
+
+    if charity_id:
+        stmt = stmt.where(UserCharityModel.charity_id == charity_id)
+
+    return stmt
 
