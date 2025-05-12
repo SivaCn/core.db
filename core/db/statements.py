@@ -50,6 +50,10 @@ from core.db.models import (
 
     CharityModel,
     UserCharityModel,
+
+    PrintRequestModel,
+
+    WillModel,
 )
 
 from core.utils.constants import (
@@ -217,7 +221,7 @@ def stmt_query_roles(
         stmt = stmt.where(RoleModel.is_active == is_active)
 
     if name:
-        stmt = stmt.where(RoleModel.name.in_(name))
+        stmt = stmt.where(RoleModel.name.in_(name)) 
 
     return stmt
 
@@ -652,6 +656,21 @@ def stmt_delete_user_address(where: dict):
     return stmt
 
 
+def stmt_query_will(
+        will_slug: Optional[str] = None):
+
+    stmt = select(
+        WillModel
+    )
+
+    if will_slug:
+        stmt = stmt.where(
+            WillModel.will_slug == will_slug
+        )
+
+    return stmt
+
+
 
 def stmt_query_immovable_asset(
         immovable_asset_slug: Optional[str] = None,
@@ -779,3 +798,27 @@ def stmt_query_user_charity(user_id: Optional[int] = None, charity_id: Optional[
 
     return stmt
 
+
+def stmt_query_print_request(
+        user_id: Optional[int] = None,
+        will_id: Optional[int] = None,
+        status: Optional[list[str]] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES): 
+
+    stmt = select(PrintRequestModel)
+
+    if user_id:
+        stmt = stmt.where(PrintRequestModel.user_id == user_id)
+    
+    if will_id:
+        stmt = stmt.where(PrintRequestModel.will_id == will_id)
+
+    if status:
+        stmt = stmt.where(PrintRequestModel.status.in_(status))
+
+    if is_active:
+        stmt = stmt.where(PrintRequestModel.is_active == is_active)
+
+    stmt = stmt.order_by(PrintRequestModel.print_request_id)
+
+    return stmt
