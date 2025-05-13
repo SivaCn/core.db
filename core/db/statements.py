@@ -54,6 +54,7 @@ from core.db.models import (
     PrintRequestModel,
 
     WillModel,
+    WillExecutorModel,
 )
 
 from core.utils.constants import (
@@ -221,7 +222,7 @@ def stmt_query_roles(
         stmt = stmt.where(RoleModel.is_active == is_active)
 
     if name:
-        stmt = stmt.where(RoleModel.name.in_(name)) 
+        stmt = stmt.where(RoleModel.name.in_(name))
 
     return stmt
 
@@ -657,19 +658,18 @@ def stmt_delete_user_address(where: dict):
 
 
 def stmt_query_will(
-        will_slug: Optional[str] = None):
+        will_slug: Optional[str] = None,
+        user_id: Optional[int] = None):
 
-    stmt = select(
-        WillModel
-    )
+    stmt = select(WillModel)
 
     if will_slug:
-        stmt = stmt.where(
-            WillModel.will_slug == will_slug
-        )
+        stmt = stmt.where(WillModel.will_slug == will_slug)
+
+    if user_id:
+        stmt = stmt.where(WillModel.user_id == user_id)
 
     return stmt
-
 
 
 def stmt_query_immovable_asset(
@@ -730,6 +730,26 @@ def stmt_query_people(people_id: Optional[int] = None, people_slug: Optional[str
 
     if people_slug:
         stmt = stmt.where(PeopleModel.people_slug == people_slug)
+
+    return stmt
+
+
+def stmt_query_people_by_user(user_id: int):
+
+    stmt = select(
+        PeopleModel
+    ).join(
+        UserPeopleModel,
+        and_(
+            UserPeopleModel.people_id == PeopleModel.people_id,
+            UserPeopleModel.is_active == const_business.IS_ACTIVE_YES,
+        )
+    ).where(
+        PeopleModel.is_active == const_business.IS_ACTIVE_YES,
+    )
+
+    if user_id:
+        stmt = stmt.where(UserPeopleModel.user_id == user_id)
 
     return stmt
 
@@ -804,13 +824,13 @@ def stmt_query_print_request(
         will_id: Optional[int] = None,
         status: Optional[list[str]] = None,
         print_request_slug: Optional[str] = None,
-        is_active: Optional[str] = const_business.IS_ACTIVE_YES): 
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
 
     stmt = select(PrintRequestModel)
 
     if user_id:
         stmt = stmt.where(PrintRequestModel.user_id == user_id)
-    
+
     if will_id:
         stmt = stmt.where(PrintRequestModel.will_id == will_id)
 
@@ -826,3 +846,27 @@ def stmt_query_print_request(
     stmt = stmt.order_by(PrintRequestModel.print_request_id)
 
     return stmt
+
+
+def stmt_query_will_executor(
+        will_id: int,
+        people_id: Optional[int] = None,
+        executor_type: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(WillExecutorModel)
+
+    if is_active:
+        stmt = stmt.where(WillExecutorModel.is_active == is_active)
+
+    if will_id:
+        stmt = stmt.where(WillExecutorModel.will_id == will_id)
+
+    if people_id:
+        stmt = stmt.where(WillExecutorModel.people_id == people_id)
+
+    if executor_type:
+        stmt = stmt.where(WillExecutorModel.executor_type == executor_type)
+
+    return stmt
+

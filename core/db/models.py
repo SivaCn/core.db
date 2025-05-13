@@ -611,3 +611,20 @@ class WillProgressModel(DeclarativeBase):
     updated_date = model_updated_date()
 
 
+# Define the WillExecutor model
+class WillExecutorModel(DeclarativeBase):
+
+    __tablename__ = "will_executor"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    will_executor_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    people_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.people.people_id"), nullable=False)
+    will_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.will.will_id"), nullable=False)
+    executor_type = sa.Column(sa.String(64), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
