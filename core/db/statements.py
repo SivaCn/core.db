@@ -803,6 +803,7 @@ def stmt_query_print_request(
         user_id: Optional[int] = None,
         will_id: Optional[int] = None,
         status: Optional[list[str]] = None,
+        print_request_slug: Optional[str] = None,
         is_active: Optional[str] = const_business.IS_ACTIVE_YES): 
 
     stmt = select(PrintRequestModel)
@@ -815,6 +816,9 @@ def stmt_query_print_request(
 
     if status:
         stmt = stmt.where(PrintRequestModel.status.in_(status))
+
+    if print_request_slug:
+        stmt = stmt.where(PrintRequestModel.print_request_slug == print_request_slug)
 
     if is_active:
         stmt = stmt.where(PrintRequestModel.is_active == is_active)
