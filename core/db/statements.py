@@ -497,7 +497,7 @@ def stmt_query_user_contact(
     return stmt
 
 
-def stmt_delete_user_primary_email(where: dict, updated_by: int):
+def stmt_delete_user_contact(where: dict, updated_by: int):
 
     stmt = update(UserContactModel)
 
