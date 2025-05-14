@@ -497,6 +497,25 @@ def stmt_query_user_contact(
     return stmt
 
 
+def stmt_delete_user_primary_email(where: dict, updated_by: int):
+
+    stmt = update(UserContactModel)
+
+    #
+    # Build Where conditions
+    for field, value in where.items():
+        stmt = stmt.where(getattr(UserContactModel, field) == value)
+
+    #
+    # Build susbtitute values
+    stmt = stmt.values(
+        updated_by=updated_by,
+        is_active=const_business.IS_ACTIVE_DELETED
+    )
+
+    return stmt
+
+
 def stmt_query_coupon(
         coupon_slug: Optional[StringFilter] = None,
         code: Optional[StringFilter] = None,
