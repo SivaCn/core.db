@@ -55,6 +55,8 @@ from core.db.models import (
 
     WillModel,
     WillExecutorModel,
+
+    PhotoModel,
 )
 
 from core.utils.constants import (
@@ -886,6 +888,25 @@ def stmt_query_will_executor(
 
     if executor_type:
         stmt = stmt.where(WillExecutorModel.executor_type == executor_type)
+
+    return stmt
+
+
+def stmt_query_photo(
+        photo_id: Optional[int] = None,
+        photo_slug: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(PhotoModel)
+
+    if is_active:
+        stmt = stmt.where(PhotoModel.is_active == is_active)
+
+    if photo_id:
+        stmt = stmt.where(PhotoModel.photo_id == photo_id)
+
+    if photo_slug:
+        stmt = stmt.where(PhotoModel.photo_slug == photo_slug)
 
     return stmt
 
