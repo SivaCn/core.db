@@ -446,7 +446,7 @@ class PrintRequestModel(DeclarativeBase):
 
     __tablename__= "print_request"
     __table_args__= {"schema": BASE_SCHEMA}
-    
+
     print_request_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
     print_request_slug = model_slug(field_name='print_request_slug')
     name = sa.Column(sa.String(128), nullable=False)
@@ -464,7 +464,26 @@ class PrintRequestModel(DeclarativeBase):
     updated_date = model_updated_date()
 
 
-    # Define the People model
+# Define the Photo model
+class PhotoModel(DeclarativeBase):
+
+    __tablename__ = "photo"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    photo_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    photo_slug = model_slug(field_name='photo_slug')
+    name = sa.Column(sa.String(128), nullable=False)
+    data = sa.Column(sa.LargeBinary, nullable=False)
+    thumbnail = sa.Column(sa.LargeBinary, nullable=False)
+    content_type = sa.Column(sa.String(64), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the People model
 class PeopleModel(DeclarativeBase):
 
     __tablename__ = "people"
@@ -480,6 +499,8 @@ class PeopleModel(DeclarativeBase):
     religion = sa.Column(sa.String(16), nullable=True)
 
     address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.address.address_id"), nullable=False)
+    photo_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.photo.photo_id"), nullable=True)
+    notes = sa.Column(sa.String(10240), nullable=True)
 
     is_active = model_is_active()
     updated_by = model_updated_by()
@@ -626,5 +647,4 @@ class WillExecutorModel(DeclarativeBase):
     updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
-
 
