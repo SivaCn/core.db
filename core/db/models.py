@@ -87,7 +87,7 @@ class UserModel(DeclarativeBase):
     parent_name = sa.Column(sa.String(128), nullable=True)
     dob = sa.Column(sa.Date, nullable=True)
     gender = sa.Column(sa.String(16), nullable=True)
-    is_nri = sa.Column(sa.Boolean, nullable=True)
+    is_indian = sa.Column(sa.Boolean, nullable=True)
     religion = sa.Column(sa.String(16), nullable=True)
 
     organization_id = sa.Column(
@@ -495,7 +495,7 @@ class PeopleModel(DeclarativeBase):
     parent_name = sa.Column(sa.String(128), nullable=True)
     dob = sa.Column(sa.Date, nullable=True)
     gender = sa.Column(sa.String(16), nullable=True)
-    is_nri = sa.Column(sa.Boolean, nullable=True)
+    is_indian = sa.Column(sa.Boolean, nullable=True)
     religion = sa.Column(sa.String(16), nullable=True)
 
     address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.address.address_id"), nullable=False)
