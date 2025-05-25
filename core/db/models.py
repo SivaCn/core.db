@@ -59,6 +59,37 @@ def model_as_dict(model_instance):
 
 
 # Define the Organization Model
+class TenantConfigModel(DeclarativeBase):
+
+    __tablename__ = "tenant_config"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    tenant_config_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    tenant_config_slug = model_slug(field_name='tenant_config_slug')
+    name = sa.Column(sa.String(128), nullable=False)
+    workspace = sa.Column(sa.String(128), nullable=False)
+
+    master_db_host = sa.Column(sa.String(128), nullable=True)
+    master_db_port = sa.Column(sa.String(128), nullable=True)
+    master_db_name = sa.Column(sa.String(128), nullable=True)
+    master_db_username = sa.Column(sa.String(128), nullable=True)
+    master_db_password = sa.Column(sa.String(128), nullable=True)
+
+    replica_db_host = sa.Column(sa.String(128), nullable=True)
+    replica_db_port = sa.Column(sa.String(128), nullable=True)
+    replica_db_name = sa.Column(sa.String(128), nullable=True)
+    replica_db_username = sa.Column(sa.String(128), nullable=True)
+    replica_db_password = sa.Column(sa.String(128), nullable=True)
+
+    is_migrated = sa.Column(sa.Boolean, nullable=False, default=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the Organization Model
 class OrganizationModel(DeclarativeBase):
 
     __tablename__ = "organization"

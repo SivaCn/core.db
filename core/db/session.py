@@ -11,7 +11,7 @@
 """
 
 # ----------- START: Native Imports ---------- #
-import os
+from typing import Optional
 # ----------- END: Native Imports ---------- #
 
 # ----------- START: Third Party Imports ---------- #
@@ -66,7 +66,7 @@ DB_REPLICA_URL = const_db.DATABASE_URL.format(
 )
 
 # Master Database Engine (Read & Write)
-master_engine = create_async_engine(
+meta_master_engine = create_async_engine(
     DB_MASTER_URL,
     pool_size=POOL_SIZE,
     max_overflow=MAX_OVERFLOW,
@@ -75,7 +75,7 @@ master_engine = create_async_engine(
 )
 
 # Replica Database Engine (Read-Only)
-replica_engine = create_async_engine(
+meta_replica_engine = create_async_engine(
     DB_REPLICA_URL,
     pool_size=POOL_SIZE,
     max_overflow=MAX_OVERFLOW,
@@ -84,8 +84,8 @@ replica_engine = create_async_engine(
 )
 
 # Session Makers
-AsyncSessionLocalMaster = sessionmaker(
-    bind=master_engine,
+AsyncSessionLocalMetaMaster = sessionmaker(
+    bind=meta_master_engine,
     class_=AsyncSession,
     expire_on_commit=False
 )
@@ -102,31 +102,34 @@ class ReadOnlySession(AsyncSession):
         raise RuntimeError("Cannot commit on a read-only session!")
 
 
-AsyncSessionLocalReplica = sessionmaker(
-    bind=replica_engine,
+AsyncSessionLocalMetaReplica = sessionmaker(
+    bind=meta_replica_engine,
     class_=ReadOnlySession,
     expire_on_commit=False
 )
 
 
 @asynccontextmanager
-async def get_db_sessions():
+async def get_db_sessions(workspace: Optional[str] = None):
     """Provides both master and replica database sessions."""
 
-    master_session: AsyncSession = AsyncSessionLocalMaster()
-    replica_session: AsyncSession = AsyncSessionLocalReplica()
+    meta_master_session: AsyncSession = AsyncSessionLocalMetaMaster()
+    meta_replica_session: AsyncSession = AsyncSessionLocalMetaReplica()
+
+    if workspace:
+        pass
 
     try:
         yield DotDict(
-            {"master": master_session, "replica": replica_session}
+            {"meta_write": meta_master_session, "meta_read": meta_replica_session}
         )
-        await master_session.commit()
+        await meta_master_session.commit()
 
     except Exception:
-        await master_session.rollback()
+        await meta_master_session.rollback()
         raise
 
     finally:
-        await master_session.close()
-        await replica_session.close()
+        await meta_master_session.close()
+        await meta_replica_session.close()
 

@@ -17,3 +17,4 @@ packages = ["core.db"]
 
 [project.scripts]
 db = "core.db.cli:apply_migrations"
+db_meta = "core.db.cli:apply_meta_migrations"
