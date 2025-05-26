@@ -73,6 +73,8 @@ class TenantConfigModel(DeclarativeBase):
 
     is_migrated = sa.Column(sa.Boolean, nullable=False, default=False)
 
+    theme = sa.Column(sa.JSON, nullable=False, default=dict)
+
     is_active = model_is_active()
     updated_by = model_updated_by()
     created_date = model_created_date()

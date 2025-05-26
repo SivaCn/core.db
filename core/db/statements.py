@@ -26,6 +26,8 @@ from core.db.models.meta import (
 
     RoleModel,
     AdminRoleModel,
+
+    TenantConfigModel,
 )
 
 from core.utils.constants import (
@@ -265,4 +267,37 @@ def stmt_delete_admin_roles(where: dict, updated_by: int):
 
     return stmt
 
+
+def stmt_query_tenant_config(
+        tenant_config_id: Optional[int] = None,
+        tenant_config_slug: Optional[str] = None,
+        workspace: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        TenantConfigModel
+    ).where(
+        TenantConfigModel.is_active == is_active
+    )
+
+    if tenant_config_id:
+        stmt = stmt.where(
+            TenantConfigModel.tenant_config_id == tenant_config_id
+        )
+
+    if tenant_config_slug:
+        stmt = stmt.where(
+            TenantConfigModel.tenant_config_slug == tenant_config_slug
+        )
+
+    if workspace:
+        stmt = stmt.where(
+            TenantConfigModel.workspace == workspace
+        )
+
+    stmt = stmt.order_by(
+        TenantConfigModel.tenant_config_id
+    )
+
+    return stmt
 
