@@ -15,7 +15,9 @@ from typing import Optional
 # ----------- END: Native Imports ---------- #
 
 # ----------- START: Third Party Imports ---------- #
-from alembic.config import Config
+from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
+from sqlalchemy.orm import sessionmaker
 
 from contextlib import asynccontextmanager
 
@@ -132,4 +134,39 @@ async def get_db_sessions(workspace: Optional[str] = None):
     finally:
         await meta_master_session.close()
         await meta_replica_session.close()
+
+
+class ScopedSession:
+
+    def __init__(self, db_config):
+        self.session = self.get_session(db_config)
+
+    def get_session(self, db_config):
+
+        if not isinstance(db_config, dict):
+            raise Exception(f"Expecting argument db_config of type dict, Got '{type(db_config).__name__}'")
+
+        conn_str = const_db.DATABASE_URL.format(
+            **{
+                'dialect': const_db.MIGRATION_DB_URL_DIALECT,
+                **db_config
+            }
+        )
+
+        engine = create_engine(conn_str, poolclass=NullPool)
+        Session = sessionmaker(bind=engine)
+
+        return Session()
+
+    def __enter__(self):
+        return self.session
+
+    def __exit__(self, *args, **kwargs):
+        #
+        # make a clean commit to the session.
+        self.session.commit()
+
+        #
+        # attempt for a clean closing of the session.
+        self.session.close()
 

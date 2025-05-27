@@ -24,13 +24,17 @@ from alembic.script import ScriptDirectory
 # ----------- END: Third Party Imports ---------- #
 
 # ----------- START: In-App Imports ---------- #
-from core.utils.constants import const_db
+from core.utils.constants import const_db, const_business
 
 from core.utils.helpers.environ import (
     ConsoleScript,
     get_build_path,
     get_build_config,
 )
+
+from core.db.session import ScopedSession
+
+from core.db.models.meta import TenantConfigModel
 # ----------- END: In-App Imports ---------- #
 
 __all__ = [
@@ -98,56 +102,56 @@ def increment_revision(revision: str) -> str:
     return f"REV_{letters}_{num:04d}"
 
 
-@ConsoleScript
-def apply_migrations():
-
-    parser = argparse.ArgumentParser(description="Database Migration Script.")
-
-    group = parser.add_mutually_exclusive_group(required=True)
-
-    group.add_argument("--upgrade", action="store_true", help="Upgrade to the latest version")
-    group.add_argument("--current", action="store_true", help="Show the current version")
-    group.add_argument("--downgrade", action="store_true", help="Downgrade to a previous version")
-    group.add_argument("--new-revision", type=str, help="Adds a new Migrtaion Revision")
-
-    args = parser.parse_args()
-
-    alembic_config_path = os.path.join(
-        get_build_path(), 'files', 'config', 'migrations.ini'
-    )
-
-    if not os.path.exists(alembic_config_path):
-        raise FileNotFoundError(f"File '{alembic_config_path}' does not exist !")
-
-    alembic_cfg = Config(alembic_config_path)
-
-    database_url = alembic_cfg.get_main_option('sqlalchemy.url')
-
-    db_config = get_build_config(section='database')
-
-    alembic_cfg.set_main_option(
-        'sqlalchemy.url',
-        database_url.format(
-            **{
-                'dialect': const_db.MIGRATION_DB_URL_DIALECT,
-                **db_config.master.as_dict()
-            }
-        )
-    )
-
-    if args.upgrade:
-        command.upgrade(alembic_cfg, 'head')
-
-    elif args.current:
-        command.current(alembic_cfg)
-
-    elif args.downgrade:
-        command.downgrade(alembic_cfg, '-1')
-
-    elif args.new_revision:
-        current_revision = ScriptDirectory.from_config(alembic_cfg).get_current_head()
-        new_revision = increment_revision(current_revision)
-        command.revision(alembic_cfg, args.new_revision, rev_id=new_revision)
+# @ConsoleScript
+# def apply_migrations():
+#
+#     parser = argparse.ArgumentParser(description="Database Migration Script.")
+#
+#     group = parser.add_mutually_exclusive_group(required=True)
+#
+#     group.add_argument("--upgrade", action="store_true", help="Upgrade to the latest version")
+#     group.add_argument("--current", action="store_true", help="Show the current version")
+#     group.add_argument("--downgrade", action="store_true", help="Downgrade to a previous version")
+#     group.add_argument("--new-revision", type=str, help="Adds a new Migrtaion Revision")
+#
+#     args = parser.parse_args()
+#
+#     alembic_config_path = os.path.join(
+#         get_build_path(), 'files', 'config', 'migrations.ini'
+#     )
+#
+#     if not os.path.exists(alembic_config_path):
+#         raise FileNotFoundError(f"File '{alembic_config_path}' does not exist !")
+#
+#     alembic_cfg = Config(alembic_config_path)
+#
+#     database_url = alembic_cfg.get_main_option('sqlalchemy.url')
+#
+#     db_config = get_build_config(section='database')
+#
+#     alembic_cfg.set_main_option(
+#         'sqlalchemy.url',
+#         database_url.format(
+#             **{
+#                 'dialect': const_db.MIGRATION_DB_URL_DIALECT,
+#                 **db_config.master.as_dict()
+#             }
+#         )
+#     )
+#
+#     if args.upgrade:
+#         command.upgrade(alembic_cfg, 'head')
+#
+#     elif args.current:
+#         command.current(alembic_cfg)
+#
+#     elif args.downgrade:
+#         command.downgrade(alembic_cfg, '-1')
+#
+#     elif args.new_revision:
+#         current_revision = ScriptDirectory.from_config(alembic_cfg).get_current_head()
+#         new_revision = increment_revision(current_revision)
+#         command.revision(alembic_cfg, args.new_revision, rev_id=new_revision)
 
 
 @ConsoleScript
@@ -204,4 +208,104 @@ def apply_meta_migrations():
         current_revision = ScriptDirectory.from_config(alembic_cfg).get_current_head()
         new_revision = increment_revision(current_revision)
         command.revision(alembic_cfg, args.new_revision, rev_id=new_revision)
+
+
+def migrations(args, category):
+    """Generic Migration function."""
+
+    if category not in ('meta', 'tenant', ):
+        raise Exception(f"Unsupported category: '{category}'")
+
+    alembic_config_path = os.path.join(
+        get_build_path(), 'files', 'config', 'migrations.ini'
+    )
+
+    if not os.path.exists(alembic_config_path):
+        raise FileNotFoundError(f"File '{alembic_config_path}' does not exist !")
+
+    alembic_cfg = Config(alembic_config_path)
+
+    database_url = alembic_cfg.get_main_option('sqlalchemy.url')
+
+    db_config = get_build_config(section='database')
+
+    with ScopedSession(db_config.master.as_dict()) as meta_session:
+
+        if args.new_revision and args.workspace == 'ALL':
+            raise Exception(f"New Revision Cannot be applied to all Workspaces")
+
+        stmt = meta_session.query(
+            TenantConfigModel
+        ).where(
+            TenantConfigModel.is_active == const_business.IS_ACTIVE_YES
+        )
+
+        if args.workspace != 'ALL':
+            #
+            # Apply Tenant level Restrictions
+            stmt = stmt.where(TenantConfigModel.workspace == args.workspace)
+
+        tenants = stmt.all()
+
+        for tenant in tenants:
+
+            print(f"\n\nWorking with Tenant: '{tenant.workspace}' <<<\n")
+
+            tenant_db_config = {
+                'host': tenant.master_db_host,
+                'port': tenant.master_db_port,
+                'db_name': tenant.master_db_name,
+                'username': tenant.master_db_username,
+                'password': tenant.master_db_password,
+            }
+
+
+            alembic_cfg.set_main_option(
+                'script_location', os.path.join(get_build_path(), 'migrations', category)
+            )
+
+            alembic_cfg.set_main_option(
+                'sqlalchemy.url',
+                database_url.format(
+                    **{
+                        'dialect': const_db.MIGRATION_DB_URL_DIALECT,
+                        **tenant_db_config,
+                    }
+                )
+            )
+
+            if args.upgrade:
+                command.upgrade(alembic_cfg, 'head')
+
+            elif args.current:
+                command.current(alembic_cfg)
+
+            elif args.downgrade:
+                command.downgrade(alembic_cfg, '-1')
+
+            elif args.new_revision:
+                current_revision = ScriptDirectory.from_config(alembic_cfg).get_current_head()
+                new_revision = increment_revision(current_revision)
+                command.revision(alembic_cfg, args.new_revision, rev_id=new_revision)
+
+            print(f"\n>>> Completed Tenant: {tenant}")
+
+
+@ConsoleScript
+def apply_tenant_migrations():
+
+    parser = argparse.ArgumentParser(description="Database Migration Script.")
+
+    parser.add_argument('--workspace', type=str, required=True, help='Workspace ID (required)')
+
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument("--upgrade", action="store_true", help="Upgrade to the latest version")
+    group.add_argument("--current", action="store_true", help="Show the current version")
+    group.add_argument("--downgrade", action="store_true", help="Downgrade to a previous version")
+    group.add_argument("--new-revision", type=str, help="Adds a new Migrtaion Revision")
+
+    args = parser.parse_args()
+
+    migrations(args, category='tenant')
 
