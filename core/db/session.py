@@ -111,29 +111,123 @@ AsyncSessionLocalMetaReplica = sessionmaker(
 )
 
 
+async def get_tenant_session(db_config, verbose=False):
+
+    conn_str = const_db.DATABASE_URL.format(
+        **{
+            'dialect': const_db.READ_WRITE_DB_URL_DIALECT,
+            **db_config
+        }
+    )
+
+    engine = create_async_engine(
+        conn_str,
+        pool_size=POOL_SIZE,
+        max_overflow=MAX_OVERFLOW,
+        future=True,
+        echo=verbose,
+    )
+
+    # Session Makers
+    _AsyncSession = sessionmaker(
+        bind=engine,
+        class_=AsyncSession,
+        expire_on_commit=False
+    )
+
+    return _AsyncSession()
+
+
+async def get_tenant_master_session(tenant, verbose=False):
+
+    tenant_db_config = {
+        'host': tenant.master_db_host,
+        'port': tenant.master_db_port,
+        'db_name': tenant.master_db_name,
+        'username': tenant.master_db_username,
+        'password': tenant.master_db_password,
+    }
+
+    return await get_tenant_session(tenant_db_config, verbose=verbose)
+
+
+async def get_tenant_replica_session(tenant, verbose=False):
+
+    tenant_db_config = {
+        'host': tenant.replica_db_host,
+        'port': tenant.replica_db_port,
+        'db_name': tenant.replica_db_name,
+        'username': tenant.replica_db_username,
+        'password': tenant.replica_db_password,
+    }
+
+    return await get_tenant_session(tenant_db_config, verbose=verbose)
+
+
 @asynccontextmanager
 async def get_db_sessions(workspace: Optional[str] = None):
     """Provides both master and replica database sessions."""
 
+    #
+    # NOTE: Do not move this import outside
+    from core.db.statements import stmt_query_tenant_config
+
     meta_master_session: AsyncSession = AsyncSessionLocalMetaMaster()
     meta_replica_session: AsyncSession = AsyncSessionLocalMetaReplica()
 
-    if workspace:
-        pass
+    tenant_master_session = None
+    tenant_replica_session = None
 
     try:
+
+        if workspace:
+            tenant_cursor = await meta_master_session.execute(
+                stmt_query_tenant_config(workspace=workspace)
+            )
+            tenant = tenant_cursor.scalar_one_or_none()
+            if not tenant:
+                raise RuntimeError(f"Unable to get tenant details for '{workspace}'")
+
+            tenant_master_session = await get_tenant_master_session(tenant, verbose=db_config.verbose)
+            tenant_replica_session = await get_tenant_replica_session(tenant, verbose=db_config.verbose)
+
         yield DotDict(
-            {"meta_write": meta_master_session, "meta_read": meta_replica_session}
+            {
+                "meta_write": meta_master_session,
+                "meta_read": meta_replica_session,
+                "tenant_write": tenant_master_session,
+                "tenant_read": tenant_replica_session,
+            }
         )
+
         await meta_master_session.commit()
+
+        if tenant_master_session:
+            await tenant_master_session.commit()
+
+        if tenant_replica_session:
+            await tenant_replica_session.commit()
 
     except Exception:
         await meta_master_session.rollback()
+
+        if tenant_master_session:
+            await tenant_master_session.rollback()
+
+        if tenant_replica_session:
+            await tenant_replica_session.rollback()
+
         raise
 
     finally:
         await meta_master_session.close()
         await meta_replica_session.close()
+
+        if tenant_master_session:
+            await tenant_master_session.close()
+
+        if tenant_replica_session:
+            await tenant_replica_session.close()
 
 
 class ScopedSession:
