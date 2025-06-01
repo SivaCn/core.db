@@ -30,6 +30,12 @@ from core.db.models.meta import (
     TenantConfigModel,
 )
 
+from core.db.models.tenant import (
+    PlanModel,
+    FeatureModel,
+    PlanFeatureModel,
+)
+
 from core.utils.constants import (
     const_business,
     const_operators,
@@ -297,6 +303,95 @@ def stmt_query_tenant_config(
 
     stmt = stmt.order_by(
         TenantConfigModel.tenant_config_id
+    )
+
+    return stmt
+
+
+def stmt_query_feature(
+        name_list: Optional[List[str]] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        FeatureModel
+    ).where(
+        FeatureModel.is_active == is_active
+    )
+
+    if name_list:
+        stmt = stmt.where(
+            FeatureModel.name.in_(name_list)
+        )
+
+    return stmt
+
+
+def stmt_query_plan(
+        plan_slug: Optional[StringFilter] = None,
+        name: Optional[StringFilter] = None,
+        is_listable: Optional[bool] = None,
+        category: Optional[StringFilter] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        PlanModel
+    ).where(
+        PlanModel.is_active == is_active
+    )
+
+    if plan_slug:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=PlanModel.plan_slug,
+                operator=plan_slug.operator.value,
+                value=plan_slug.value,
+                case_insensitive=False,
+            )
+        )
+
+    if name:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=PlanModel.name, operator=name.operator.value, value=name.value
+            )
+        )
+
+    if is_listable is not None:
+        stmt = stmt.where(PlanModel.is_listable == is_listable)
+
+    if category:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=PlanModel.category, operator=category.operator.value, value=category.value
+            )
+        )
+
+    return stmt
+
+
+def stmt_delete_plan_feature(where: dict, updated_by: int):
+
+    stmt = update(PlanFeatureModel)
+
+    has_conditions = False
+    for field, value in where.items():
+
+        has_conditions = True
+
+        stmt = stmt.where(
+            getattr(PlanFeatureModel, field) == value
+        )
+
+    if not has_conditions:
+        raise Exception(
+            f"Quiting as no filter conditions provoided while deleting all the entries in 'PlanFeatureModel'"
+        )
+
+    #
+    # Build susbtitute values
+    stmt = stmt.values(
+        updated_by=updated_by,
+        is_active=const_business.IS_ACTIVE_DELETED
     )
 
     return stmt
