@@ -288,7 +288,7 @@ def migrations(args, category):
                 new_revision = increment_revision(current_revision)
                 command.revision(alembic_cfg, args.new_revision, rev_id=new_revision)
 
-            print(f"\n>>> Completed Tenant: {tenant}")
+            print(f"\n>>> Completed Tenant: {tenant.workspace}")
 
 
 @ConsoleScript

@@ -34,6 +34,10 @@ from core.db.models.tenant import (
     PlanModel,
     FeatureModel,
     PlanFeatureModel,
+
+    UserModel,
+    AddressModel,
+    UserAddressModel,
 )
 
 from core.utils.constants import (
@@ -385,6 +389,120 @@ def stmt_delete_plan_feature(where: dict, updated_by: int):
     if not has_conditions:
         raise Exception(
             f"Quiting as no filter conditions provoided while deleting all the entries in 'PlanFeatureModel'"
+        )
+
+    #
+    # Build susbtitute values
+    stmt = stmt.values(
+        updated_by=updated_by,
+        is_active=const_business.IS_ACTIVE_DELETED
+    )
+
+    return stmt
+
+
+def stmt_query_user(
+        user_slug: Optional[str] = None,
+        phone: Optional[StringFilter] = None,
+        email: Optional[StringFilter] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        UserModel
+    ).where(
+        UserModel.is_active == is_active
+    )
+
+    if user_slug:
+        stmt = stmt.where(
+            UserModel.user_slug == user_slug
+        )
+
+    if phone:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=UserModel.phone,
+                operator=phone.operator.value,
+                value=phone.value,
+            )
+        )
+
+    if email:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=UserModel.email,
+                operator=email.operator.value,
+                value=email.value,
+            )
+        )
+
+    return stmt
+
+
+def stmt_query_address(
+        address_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        AddressModel
+    ).where(
+        AddressModel.is_active == is_active
+    )
+
+    if address_id:
+        stmt = stmt.where(
+            AddressModel.address_id == address_id
+        )
+
+    return stmt
+
+
+def stmt_query_user_address(
+        user_id: Optional[int] = None,
+        address_id: Optional[int] = None,
+        entity_type: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        UserAddressModel
+    ).where(
+        UserAddressModel.is_active == is_active
+    )
+
+    if user_id:
+        stmt = stmt.where(
+            UserAddressModel.user_id == user_id
+        )
+
+    if address_id:
+        stmt = stmt.where(
+            UserAddressModel.address_id == address_id
+        )
+
+    if entity_type:
+        stmt = stmt.where(
+            UserAddressModel.entity_type == entity_type
+        )
+
+    return stmt
+
+
+def stmt_delete_user_address(where: dict, updated_by: int):
+
+    stmt = update(UserAddressModel)
+
+    has_conditions = False
+    for field, value in where.items():
+
+        has_conditions = True
+
+        stmt = stmt.where(
+            getattr(UserAddressModel, field) == value
+        )
+
+    if not has_conditions:
+        raise Exception(
+            f"Quiting as no filter conditions provoided while deleting all the entries in 'UserAddressModel'"
         )
 
     #

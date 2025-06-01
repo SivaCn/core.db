@@ -100,3 +100,67 @@ class PlanFeatureModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+class UserModel(DeclarativeBase):
+
+    __tablename__ = "user"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    user_slug = model_slug(field_name='user_slug')
+
+    name = sa.Column(sa.String(128), nullable=False)
+    phone = sa.Column(sa.String(128), nullable=False)
+    whatsapp_consent = sa.Column(sa.Boolean, nullable=False, default=True)
+    email = sa.Column(sa.String(128), nullable=True)
+    parent_name = sa.Column(sa.String(128), nullable=True)
+    dob = sa.Column(sa.Date, nullable=True)
+    gender = sa.Column(sa.String(16), nullable=True)
+    is_indian = sa.Column(sa.Boolean, nullable=True)
+    religion = sa.Column(sa.String(16), nullable=True)
+
+    is_verified = sa.Column(sa.Boolean, nullable=False, default=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class AddressModel(DeclarativeBase):
+
+    __tablename__ = "address"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    address_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    address_slug = model_slug(field_name='address_slug')
+
+    line1 = sa.Column(sa.String(512), nullable=False)
+    line2 = sa.Column(sa.String(512), nullable=True)
+    city = sa.Column(sa.String(64), nullable=False)
+    state = sa.Column(sa.String(64), nullable=False)
+    country = sa.Column(sa.String(64), nullable=False)
+    postal_code = sa.Column(sa.Integer, nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class UserAddressModel(DeclarativeBase):
+
+    __tablename__ = "user_address"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_address_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.address.address_id"), nullable=False)
+    entity_type = sa.Column(sa.String(32), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
