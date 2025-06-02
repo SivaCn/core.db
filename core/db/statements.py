@@ -487,6 +487,30 @@ def stmt_query_user_address(
     return stmt
 
 
+def stmt_query_address_by_user(
+        user_id: int,
+        entity_type: Optional[str] = None):
+
+    stmt = select(
+        AddressModel
+    ).join(
+        UserAddressModel,
+        and_(
+            UserAddressModel.address_id == AddressModel.address_id,
+            UserAddressModel.is_active == const_business.IS_ACTIVE_YES,
+        )
+    ).where(
+        UserAddressModel.user_id == user_id
+    )
+
+    if entity_type:
+        stmt = stmt.where(
+            UserAddressModel.entity_type == entity_type
+        )
+
+    return stmt
+
+
 def stmt_delete_user_address(where: dict, updated_by: int):
 
     stmt = update(UserAddressModel)
