@@ -164,3 +164,65 @@ class UserAddressModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+class PersonModel(DeclarativeBase):
+
+    __tablename__ = "person"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    person_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    person_slug = model_slug(field_name='person_slug')
+
+    name = sa.Column(sa.String(128), nullable=False)
+    phone = sa.Column(sa.String(128), nullable=False)
+    email = sa.Column(sa.String(128), nullable=True)
+    parent_name = sa.Column(sa.String(128), nullable=True)
+    dob = sa.Column(sa.Date, nullable=False)
+    gender = sa.Column(sa.String(16), nullable=False)
+
+    address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.address.address_id"), nullable=False)
+    notes = sa.Column(sa.String(10240), nullable=True)
+
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class PersonIdentityModel(DeclarativeBase):
+
+    __tablename__ = "person_identity"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    person_identity_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+
+    person_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.person.person_id"), nullable=False)
+    id_type = sa.Column(sa.String(128), nullable=False)
+    id_value = sa.Column(sa.String(128), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class UserPersonModel(DeclarativeBase):
+
+    __tablename__ = "user_person"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_person_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    person_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.person.person_id"), nullable=False)
+
+    relation = sa.Column(sa.String(64), nullable=False)
+    association = sa.Column(sa.String(64), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+

@@ -38,6 +38,10 @@ from core.db.models.tenant import (
     UserModel,
     AddressModel,
     UserAddressModel,
+
+    PersonModel,
+    UserPersonModel,
+    PersonIdentityModel,
 )
 
 from core.utils.constants import (
@@ -153,6 +157,34 @@ def prepare_where_expression(field, operator, value, case_insensitive=True):
         )
 
     return func(value)
+
+
+def stmt_delete(model, where: dict, updated_by: int):
+
+    stmt = update(model)
+
+    has_conditions = False
+    for field, value in where.items():
+
+        has_conditions = True
+
+        stmt = stmt.where(
+            getattr(model, field) == value
+        )
+
+    if not has_conditions:
+        raise Exception(
+            f"Quiting as no filter conditions provoided while deleting all the entries in '{model.__name__}'"
+        )
+
+    #
+    # Build susbtitute values
+    stmt = stmt.values(
+        updated_by=updated_by,
+        is_active=const_business.IS_ACTIVE_DELETED
+    )
+
+    return stmt
 
 
 def stmt_query_admin(
@@ -537,4 +569,75 @@ def stmt_delete_user_address(where: dict, updated_by: int):
     )
 
     return stmt
+
+
+def stmt_query_person(
+        person_id: Optional[int] = None,
+        person_slug: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        PersonModel
+    ).where(
+        PersonModel.is_active == is_active
+    )
+
+    if person_id:
+        stmt = stmt.where(
+            PersonModel.person_id == person_id
+        )
+
+    if person_slug:
+        stmt = stmt.where(
+            PersonModel.person_slug == person_slug
+        )
+
+    return stmt
+
+
+def stmt_query_person_identity(
+        person_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        PersonIdentityModel
+    ).where(
+        PersonIdentityModel.is_active == is_active
+    )
+
+    if person_id:
+        stmt = stmt.where(
+            PersonIdentityModel.person_id == person_id
+        )
+
+    return stmt
+
+
+def stmt_delete_person_identity(where: dict, updated_by: int):
+    return stmt_delete(model=PersonIdentityModel, where=where, updated_by=updated_by)
+
+
+def stmt_query_user_person(
+        user_id: Optional[int] = None,
+        person_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        UserPersonModel
+    ).where(
+        UserPersonModel.is_active == is_active
+    )
+
+    if user_id:
+        stmt = stmt.where(
+            UserPersonModel.user_id == user_id
+        )
+
+    if person_id:
+        stmt = stmt.where(
+            UserPersonModel.person_id == person_id
+        )
+
+    return stmt
+
 
