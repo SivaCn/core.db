@@ -42,6 +42,9 @@ from core.db.models.tenant import (
     PersonModel,
     UserPersonModel,
     PersonIdentityModel,
+
+    CharityModel,
+    UserCharityModel,
 )
 
 from core.utils.constants import (
@@ -636,6 +639,54 @@ def stmt_query_user_person(
     if person_id:
         stmt = stmt.where(
             UserPersonModel.person_id == person_id
+        )
+
+    return stmt
+
+
+def stmt_query_charity(
+        charity_id: Optional[int] = None,
+        charity_slug: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        CharityModel
+    ).where(
+        CharityModel.is_active == is_active
+    )
+
+    if charity_id:
+        stmt = stmt.where(
+            CharityModel.charity_id == charity_id
+        )
+
+    if charity_slug:
+        stmt = stmt.where(
+            CharityModel.charity_slug == charity_slug
+        )
+
+    return stmt
+
+
+def stmt_query_user_charity(
+        user_id: Optional[int] = None,
+        charity_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        UserCharityModel
+    ).where(
+        UserCharityModel.is_active == is_active
+    )
+
+    if user_id:
+        stmt = stmt.where(
+            UserCharityModel.user_id == user_id
+        )
+
+    if charity_id:
+        stmt = stmt.where(
+            UserCharityModel.charity_id == charity_id
         )
 
     return stmt
