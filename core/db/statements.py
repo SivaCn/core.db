@@ -48,6 +48,7 @@ from core.db.models.tenant import (
 
     CharityModel,
     UserCharityModel,
+    CouponModel,
 )
 
 from core.utils.constants import (
@@ -68,6 +69,9 @@ from web.backend.common import (
     PagedType,
 
     StringFilter,
+    DateFilter,
+    NumericFilter,
+    CouponDiscountTypeEnum,
 )
 # ----------- END: In-App Imports ---------- #
 
@@ -694,3 +698,33 @@ def stmt_query_user_charity(
 
     return stmt
 
+
+def stmt_query_coupon(
+        code: Optional[str] = None,
+        coupon_slug: Optional[str] = None,
+        coupon_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+
+    stmt = select(
+        CouponModel
+    ).where(
+        CouponModel.is_active == is_active
+    )
+
+    if coupon_slug:
+        stmt = stmt.where(
+            CouponModel.coupon_slug == coupon_slug
+        )
+
+    if coupon_id:
+        stmt = stmt.where(
+            CouponModel.coupon_id == coupon_id
+        )
+
+    if code:
+        stmt = stmt.where(
+            CouponModel.code == code
+        )
+
+    return stmt
