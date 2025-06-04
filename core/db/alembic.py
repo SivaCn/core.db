@@ -152,7 +152,7 @@ MENU_ITEMS = [
     menu_item(
         name='Plans',
         menu_slug='117d15da-81f6-4dc5-a95c-ff527f672212',
-        priority=1,
+        priority=2,
         roles=[
             MenuRole(role=ROLES[ROLE_SUPER_ADMIN], can_read=True, can_write=True),
             MenuRole(role=ROLES[ROLE_ADMIN], can_read=True, can_write=True),
@@ -164,7 +164,7 @@ MENU_ITEMS = [
     menu_item(
         name='Coupons',
         menu_slug='8cba4c27-3535-4bb1-8ed8-5757b50c43c7',
-        priority=1,
+        priority=3,
         roles=[
             MenuRole(role=ROLES[ROLE_SUPER_ADMIN], can_read=True, can_write=True),
             MenuRole(role=ROLES[ROLE_ADMIN], can_read=True, can_write=True),
@@ -320,6 +320,9 @@ class SyncUserAndRoles:
                 MenuModel.menu_slug == menu_item.menu_slug
             ).one_or_none()
 
+            menu.priority = menu_item.priority
+            menu.is_active = const_business.IS_ACTIVE_YES
+
             if not menu:
                 menu = MenuModel(
                     name=menu_item.name,
@@ -330,9 +333,6 @@ class SyncUserAndRoles:
                 )
                 self.session.add(menu)
                 self.session.flush()
-
-            if menu and menu.is_active != const_business.IS_ACTIVE_YES:
-                menu.is_active = const_business.IS_ACTIVE_YES
 
             for menu_role_detail in menu_item.roles:
                 menu_role = self.session.query(

@@ -27,6 +27,9 @@ from core.db.models.meta import (
     RoleModel,
     AdminRoleModel,
 
+    MenuModel,
+    MenuRoleModel,
+
     TenantConfigModel,
 )
 
@@ -690,5 +693,4 @@ def stmt_query_user_charity(
         )
 
     return stmt
-
 
