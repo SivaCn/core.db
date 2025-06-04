@@ -157,3 +157,41 @@ class AdminInviteModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+# Define the Menu model
+class MenuModel(DeclarativeBase):
+
+    __tablename__ = "menu"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    menu_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    menu_slug = model_slug(field_name='menu_slug')
+    name = sa.Column(sa.String(128), nullable=False)
+    description = sa.Column(sa.String(1024), nullable=True)
+    parent_id = sa.Column(sa.Integer, sa.ForeignKey(f"{BASE_SCHEMA}.menu.menu_id"), nullable=True)
+    priority = sa.Column(sa.Integer, nullable=False, default=1)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+# Define the Menu Role model
+class MenuRoleModel(DeclarativeBase):
+
+    __tablename__ = "menu_role"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    menu_role_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    menu_id = sa.Column(sa.Integer, sa.ForeignKey(f"{BASE_SCHEMA}.menu.menu_id"), nullable=False)
+    role_id = sa.Column(sa.Integer, sa.ForeignKey(f"{BASE_SCHEMA}.role.role_id"), nullable=False)
+
+    can_read = sa.Column(sa.Boolean, nullable=False, default=False)
+    can_write = sa.Column(sa.Boolean, nullable=False, default=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
