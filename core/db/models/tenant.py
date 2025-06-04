@@ -278,7 +278,6 @@ class CouponModel(DeclarativeBase):
     min_order = sa.Column(sa.Numeric(10, 2), nullable=True)
     start_date = sa.Column(sa.DateTime(timezone=False), nullable=False)
     end_date = sa.Column(sa.DateTime(timezone=False), nullable=False)
-    is_expired = sa.Column(sa.Boolean, nullable=False, default=False)
 
     # Usage limits
     max_uses = sa.Column(sa.Integer, nullable=True)
