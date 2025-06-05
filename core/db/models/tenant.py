@@ -105,7 +105,7 @@ class FeatureModel(DeclarativeBase):
 #     updated_date = model_updated_date()
 
 
-# Define the Plan model
+# Define the Tariff model
 class TariffModel(DeclarativeBase):
 
     __tablename__ = "tariff"
@@ -131,7 +131,7 @@ class TariffModel(DeclarativeBase):
     updated_date = model_updated_date()
 
 
-# Define the Plan_Feature model
+# Define the Tariff_Feature model
 class TariffFeatureModel(DeclarativeBase):
 
     __tablename__ = "tariff_feature"
@@ -343,15 +343,15 @@ class CouponModel(DeclarativeBase):
     updated_date = model_updated_date()
 
 
-class CouponPlanModel(DeclarativeBase):
+class CouponTariffModel(DeclarativeBase):
 
-    __tablename__ = "coupon_plan"
+    __tablename__ = "coupon_tariff"
     __table_args__ = {"schema": BASE_SCHEMA}
 
-    coupon_plan_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    coupon_tariff_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
 
     coupon_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.coupon.coupon_id'), nullable=False)
-    plan_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.plan.plan_id'), nullable=False)
+    tariff_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.tariff.tariff_id'), nullable=False)
 
     is_active = model_is_active()
     updated_by = model_updated_by()
