@@ -259,7 +259,6 @@ def migrations(args, category):
                 'password': tenant.master_db_password,
             }
 
-
             alembic_cfg.set_main_option(
                 'script_location', os.path.join(get_build_path(), 'migrations', category)
             )

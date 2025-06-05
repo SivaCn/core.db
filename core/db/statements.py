@@ -34,9 +34,9 @@ from core.db.models.meta import (
 )
 
 from core.db.models.tenant import (
-    PlanModel,
+    TariffModel,
     FeatureModel,
-    PlanFeatureModel,
+    TariffFeatureModel,
 
     UserModel,
     AddressModel,
@@ -372,25 +372,36 @@ def stmt_query_feature(
     return stmt
 
 
-def stmt_query_plan(
-        plan_slug: Optional[StringFilter] = None,
+def stmt_query_tariff(
+        tariff_id: Optional[NumericFilter] = None,
+        tariff_slug: Optional[StringFilter] = None,
         name: Optional[StringFilter] = None,
         is_listable: Optional[bool] = None,
         category: Optional[StringFilter] = None,
+        covered_tariff_id: Optional[int] = None,
         is_active: Optional[str] = const_business.IS_ACTIVE_YES):
 
     stmt = select(
-        PlanModel
+        TariffModel
     ).where(
-        PlanModel.is_active == is_active
+        TariffModel.is_active == is_active
     )
 
-    if plan_slug:
+    if tariff_id:
         stmt = stmt.where(
             prepare_where_expression(
-                field=PlanModel.plan_slug,
-                operator=plan_slug.operator.value,
-                value=plan_slug.value,
+                field=TariffModel.tariff_id,
+                operator=tariff_id.operator.value,
+                value=tariff_id.value
+            )
+        )
+
+    if tariff_slug:
+        stmt = stmt.where(
+            prepare_where_expression(
+                field=TariffModel.tariff_slug,
+                operator=tariff_slug.operator.value,
+                value=tariff_slug.value,
                 case_insensitive=False,
             )
         )
@@ -398,26 +409,31 @@ def stmt_query_plan(
     if name:
         stmt = stmt.where(
             prepare_where_expression(
-                field=PlanModel.name, operator=name.operator.value, value=name.value
+                field=TariffModel.name, operator=name.operator.value, value=name.value
             )
         )
 
     if is_listable is not None:
-        stmt = stmt.where(PlanModel.is_listable == is_listable)
+        stmt = stmt.where(TariffModel.is_listable == is_listable)
 
     if category:
         stmt = stmt.where(
             prepare_where_expression(
-                field=PlanModel.category, operator=category.operator.value, value=category.value
+                field=TariffModel.category, operator=category.operator.value, value=category.value
             )
+        )
+
+    if covered_tariff_id:
+        stmt = stmt.where(
+            TariffModel.covered_tariff_id.any(covered_tariff_id)
         )
 
     return stmt
 
 
-def stmt_delete_plan_feature(where: dict, updated_by: int):
+def stmt_delete_tariff_feature(where: dict, updated_by: int):
 
-    stmt = update(PlanFeatureModel)
+    stmt = update(TariffFeatureModel)
 
     has_conditions = False
     for field, value in where.items():
@@ -425,12 +441,12 @@ def stmt_delete_plan_feature(where: dict, updated_by: int):
         has_conditions = True
 
         stmt = stmt.where(
-            getattr(PlanFeatureModel, field) == value
+            getattr(TariffFeatureModel, field) == value
         )
 
     if not has_conditions:
         raise Exception(
-            f"Quiting as no filter conditions provoided while deleting all the entries in 'PlanFeatureModel'"
+            f"Quiting as no filter conditions provoided while deleting all the entries in 'TariffFeatureModel'"
         )
 
     #
