@@ -264,3 +264,49 @@ class UserCharityModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+class CouponModel(DeclarativeBase):
+
+    __tablename__ = "coupon"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    coupon_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    coupon_slug = model_slug(field_name='coupon_slug')
+    code = sa.Column(sa.String(64), nullable=False)
+    discount_type = sa.Column(sa.String(64), nullable=False)
+    discount = sa.Column(sa.Integer, nullable=False)
+    min_order = sa.Column(sa.Numeric(10, 2), nullable=True)
+    start_date = sa.Column(sa.DateTime(timezone=False), nullable=False)
+    end_date = sa.Column(sa.DateTime(timezone=False), nullable=False)
+
+    # Usage limits
+    max_uses = sa.Column(sa.Integer, nullable=True)
+    used_count = sa.Column(sa.Integer, nullable=False, default=0)
+
+    # Restriction configuration
+    restriction_type = sa.Column(sa.String(64), nullable=True)
+    restriction_value = sa.Column(sa.Integer, nullable=False, default=0)
+
+    # User targeting
+    for_new_users_only = sa.Column(sa.Boolean, nullable=False, default=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class CouponPlanModel(DeclarativeBase):
+
+    __tablename__ = "coupon_plan"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    coupon_plan_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+
+    coupon_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.coupon.coupon_id'), nullable=False)
+    plan_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.plan.plan_id'), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
