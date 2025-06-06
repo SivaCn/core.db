@@ -320,10 +320,11 @@ class SyncUserAndRoles:
                 MenuModel.menu_slug == menu_item.menu_slug
             ).one_or_none()
 
-            menu.priority = menu_item.priority
-            menu.is_active = const_business.IS_ACTIVE_YES
+            if menu:
+                menu.priority = menu_item.priority
+                menu.is_active = const_business.IS_ACTIVE_YES
 
-            if not menu:
+            else:
                 menu = MenuModel(
                     name=menu_item.name,
                     menu_slug=menu_item.menu_slug,
