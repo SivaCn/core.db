@@ -314,3 +314,38 @@ class CouponTariffModel(DeclarativeBase):
     updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
+
+
+class TagModel(DeclarativeBase):
+
+    __tablename__ = "tag"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    tag_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    tag_slug = model_slug(field_name='tag_slug')
+
+    name = sa.Column(sa.String(128), nullable=False)
+    description = sa.Column(sa.String(1024), nullable=True)
+    category = sa.Column(sa.String(64), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class TariffTagModel(DeclarativeBase):
+
+    __tablename__ = "tariff_tag"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    tariff_tag_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+
+    tariff_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.tariff.tariff_id'), nullable=False)
+    tag_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.tag.tag_id'), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+

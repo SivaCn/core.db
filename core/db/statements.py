@@ -34,8 +34,11 @@ from core.db.models.meta import (
 )
 
 from core.db.models.tenant import (
+    TagModel,
+
     TariffModel,
     FeatureModel,
+    TariffTagModel,
     TariffFeatureModel,
 
     UserModel,
@@ -744,3 +747,40 @@ def stmt_query_coupon(
         )
 
     return stmt
+
+
+def stmt_query_tag(
+        name: Optional[str] = None,
+        tag_slug: Optional[str] = None,
+        tag_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+
+    stmt = select(
+        TagModel
+    ).where(
+        TagModel.is_active == is_active
+    )
+
+    if name:
+        stmt = stmt.where(
+            func.lower(TagModel.name) == func.lower(name)
+        )
+
+    if tag_slug:
+        stmt = stmt.where(
+            TagModel.tag_slug == tag_slug
+        )
+
+    if tag_id:
+        stmt = stmt.where(
+            TagModel.tag_id == tag_id
+        )
+
+    return stmt
+
+
+def stmt_delete_tariff_tag(where: dict, updated_by: int):
+    return stmt_delete(model=TariffTagModel, where=where, updated_by=updated_by)
+
+
