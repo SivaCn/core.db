@@ -349,3 +349,37 @@ class TariffTagModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+class CartModel(DeclarativeBase):
+
+    __tablename__ = "cart"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    cart_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    cart_slug = model_slug(field_name='cart_slug')
+    user_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
+    coupon_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.coupon.coupon_id'), nullable=True)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class CartItemModel(DeclarativeBase):
+
+    __tablename__ = "cart_item"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    cart_item_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    cart_item_slug = model_slug(field_name='cart_item_slug')
+
+    cart_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.cart.cart_id'), nullable=False)
+    tariff_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.tariff.tariff_id'), nullable=False)
+    quantity = sa.Column(sa.Integer, nullable=False, default=1)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+

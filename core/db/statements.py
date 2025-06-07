@@ -34,6 +34,10 @@ from core.db.models.meta import (
 )
 
 from core.db.models.tenant import (
+    UserModel,
+    AddressModel,
+    UserAddressModel,
+
     TagModel,
 
     TariffModel,
@@ -41,9 +45,8 @@ from core.db.models.tenant import (
     TariffTagModel,
     TariffFeatureModel,
 
-    UserModel,
-    AddressModel,
-    UserAddressModel,
+    CartModel,
+    CartItemModel,
 
     PersonModel,
     UserPersonModel,
@@ -783,4 +786,105 @@ def stmt_query_tag(
 def stmt_delete_tariff_tag(where: dict, updated_by: int):
     return stmt_delete(model=TariffTagModel, where=where, updated_by=updated_by)
 
+
+def stmt_query_cart(
+        user_id: Optional[str] = None,
+        cart_id: Optional[int] = None,
+        cart_slug: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        CartModel
+    ).where(
+        CartModel.is_active == is_active
+    )
+
+    if user_id:
+        stmt = stmt.where(
+            CartModel.user_id == user_id
+        )
+
+    if cart_id:
+        stmt = stmt.where(
+            CartModel.cart_id == cart_id
+        )
+
+    if cart_slug:
+        stmt = stmt.where(
+            CartModel.cart_slug == cart_slug
+        )
+
+    return stmt
+
+
+def stmt_query_cart_item(
+        cart_id: Optional[int] = None,
+        tariff_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        CartItemModel
+    ).where(
+        CartItemModel.is_active == is_active
+    )
+
+    if cart_id:
+        stmt = stmt.where(
+            CartItemModel.cart_id == cart_id
+        )
+
+    if tariff_id:
+        stmt = stmt.where(
+            CartItemModel.tariff_id == tariff_id
+        )
+
+    return stmt
+
+
+def stmt_list_cart_items(
+        cart_id: Optional[int] = None,
+        cart_slug: Optional[str] = None):
+
+    stmt = select(
+        CartModel.cart_slug,
+        TariffModel.tariff_slug,
+        CartItemModel.cart_item_slug,
+        CartItemModel.quantity,
+    ).select_from(
+        CartModel
+    ).join(
+        CartItemModel,
+        and_(
+            CartItemModel.cart_id == CartModel.cart_id,
+            CartItemModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).join(
+        TariffModel,
+        and_(
+            TariffModel.tariff_id == CartItemModel.tariff_id,
+            TariffModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    )
+
+    if cart_id:
+        stmt = stmt.where(
+            CartModel.cart_id == cart_id
+        )
+
+    if cart_slug:
+        stmt = stmt.where(
+            CartModel.cart_slug == cart_slug
+        )
+
+    return stmt
+
+
+def stmt_delete_cart(where: dict, updated_by: int):
+    return stmt_delete(model=CartModel, where=where, updated_by=updated_by)
+
+
+def stmt_delete_cart_item(where: dict, updated_by: int):
+    return stmt_delete(model=CartItemModel, where=where, updated_by=updated_by)
 
