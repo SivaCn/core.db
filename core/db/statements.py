@@ -754,6 +754,10 @@ def stmt_query_coupon(
     return stmt
 
 
+def stmt_delete_coupon_tariff(where: dict, updated_by: int):
+    return stmt_delete(model=CouponTariffModel, where=where, updated_by=updated_by)
+
+
 def stmt_query_tag(
         name: Optional[str] = None,
         tag_slug: Optional[str] = None,
@@ -889,22 +893,3 @@ def stmt_delete_cart(where: dict, updated_by: int):
 
 def stmt_delete_cart_item(where: dict, updated_by: int):
     return stmt_delete(model=CartItemModel, where=where, updated_by=updated_by)
-
-
-def stmt_delete_coupon_tariff(where: dict, updated_by: int):
-
-    stmt = update(CouponTariffModel)
-
-    #
-    # Build Where conditions
-    for field, value in where.items():
-        stmt = stmt.where(getattr(CouponTariffModel, field) == value)
-
-    #
-    # Build susbtitute values
-    stmt = stmt.values(
-        updated_by=updated_by,
-        is_active=const_business.IS_ACTIVE_DELETED
-    )
-
-    return stmt
