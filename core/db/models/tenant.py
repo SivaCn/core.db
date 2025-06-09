@@ -383,3 +383,29 @@ class CartItemModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+class FileModel(DeclarativeBase):
+
+    __tablename__ = "file"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    file_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    file_slug = model_slug(field_name='file_slug')
+
+    file_name = sa.Column(sa.String(128), nullable=False)
+    category = sa.Column(sa.String(128), nullable=False)
+    content_type = sa.Column(sa.String(128), nullable=False)
+    file_size = sa.Column(sa.BigInteger, nullable=False)
+
+    storage_provider = sa.Column(sa.String(128), nullable=False)
+    bucket = sa.Column(sa.String(128), nullable=False)
+    path = sa.Column(sa.String(10240), nullable=False)
+    thumbnail_path = sa.Column(sa.String(10240), nullable=True)
+
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
