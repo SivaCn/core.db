@@ -57,6 +57,8 @@ from core.db.models.tenant import (
 
     CouponModel,
     CouponTariffModel,
+
+    FileModel,
 )
 
 from core.utils.constants import (
@@ -893,3 +895,34 @@ def stmt_delete_cart(where: dict, updated_by: int):
 
 def stmt_delete_cart_item(where: dict, updated_by: int):
     return stmt_delete(model=CartItemModel, where=where, updated_by=updated_by)
+
+
+def stmt_query_file(
+        file_id: Optional[int] = None,
+        file_slug: Optional[str] = None,
+        user_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        FileModel
+    ).where(
+        FileModel.is_active == is_active
+    )
+
+    if file_id:
+        stmt = stmt.where(
+            FileModel.file_id == file_id
+        )
+
+    if file_slug:
+        stmt = stmt.where(
+            FileModel.file_slug == file_slug
+        )
+
+    if user_id:
+        stmt = stmt.where(
+            FileModel.user_id == user_id
+        )
+
+    return stmt
+

@@ -187,6 +187,7 @@ class PersonModel(DeclarativeBase):
     address_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.address.address_id"), nullable=False)
     notes = sa.Column(sa.String(10240), nullable=True)
 
+    photo_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.file.file_id'), nullable=True)
 
     is_active = model_is_active()
     updated_by = model_updated_by()
