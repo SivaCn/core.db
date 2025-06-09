@@ -890,7 +890,7 @@ def stmt_delete_cart(where: dict, updated_by: int):
 def stmt_delete_cart_item(where: dict, updated_by: int):
     return stmt_delete(model=CartItemModel, where=where, updated_by=updated_by)
 
-def stmt_delete_coupon_plan(where: dict, updated_by: int):
+
 def stmt_delete_coupon_tariff(where: dict, updated_by: int):
 
     stmt = update(CouponTariffModel)
