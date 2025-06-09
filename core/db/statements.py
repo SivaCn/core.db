@@ -54,7 +54,9 @@ from core.db.models.tenant import (
 
     CharityModel,
     UserCharityModel,
+
     CouponModel,
+    CouponTariffModel,
 )
 
 from core.utils.constants import (
@@ -752,6 +754,10 @@ def stmt_query_coupon(
     return stmt
 
 
+def stmt_delete_coupon_tariff(where: dict, updated_by: int):
+    return stmt_delete(model=CouponTariffModel, where=where, updated_by=updated_by)
+
+
 def stmt_query_tag(
         name: Optional[str] = None,
         tag_slug: Optional[str] = None,
@@ -887,4 +893,3 @@ def stmt_delete_cart(where: dict, updated_by: int):
 
 def stmt_delete_cart_item(where: dict, updated_by: int):
     return stmt_delete(model=CartItemModel, where=where, updated_by=updated_by)
-
