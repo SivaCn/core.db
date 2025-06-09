@@ -54,7 +54,9 @@ from core.db.models.tenant import (
 
     CharityModel,
     UserCharityModel,
+
     CouponModel,
+    CouponPlanModel
 )
 
 from core.utils.constants import (
@@ -888,3 +890,21 @@ def stmt_delete_cart(where: dict, updated_by: int):
 def stmt_delete_cart_item(where: dict, updated_by: int):
     return stmt_delete(model=CartItemModel, where=where, updated_by=updated_by)
 
+def stmt_delete_coupon_plan(where: dict, updated_by: int):
+
+    stmt = update(CouponPlanModel)
+
+    #
+    # Build Where conditions
+    for field, value in where.items():
+        stmt = stmt.where(getattr(CouponPlanModel, field) == value)
+
+    #
+    # Build susbtitute values
+
+    stmt = stmt.values(
+        updated_by=updated_by,
+        is_active=const_business.IS_ACTIVE_DELETED
+    )
+
+    return stmt
