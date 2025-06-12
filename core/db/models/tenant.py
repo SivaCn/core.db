@@ -410,3 +410,24 @@ class FileModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+class SmsLogModel(DeclarativeBase):
+
+    __tablename__ = "sms_log"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    sms_log_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
+
+    sms_provider_id = sa.Column(sa.Integer, nullable=False)
+
+    reference_id = sa.Column(sa.String(256), nullable=False)
+    status = sa.Column(sa.String(16), nullable=False)
+    initial_response = sa.Column(postgresql.JSON(), nullable=False, default=dict)
+    query_response = sa.Column(postgresql.JSON(), nullable=False, default=dict)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+

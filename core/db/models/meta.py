@@ -195,3 +195,64 @@ class MenuRoleModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+class SmsProviderModel(DeclarativeBase):
+
+    __tablename__ = "sms_provider"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    sms_provider_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    sms_provider_slug = model_slug(field_name='sms_provider_slug')
+    name = sa.Column(sa.String(128), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class SmsProviderConfigModel(DeclarativeBase):
+
+    __tablename__ = "sms_provider_config"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    sms_provider_config_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    sms_provider_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey(f"{BASE_SCHEMA}.sms_provider.sms_provider_id"),
+        nullable=False
+    )
+
+    config_type = sa.Column(sa.String(128), nullable=False)
+    key = sa.Column(sa.String(128), nullable=False)
+    value = sa.Column(sa.String, nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class SmsTemplateModel(DeclarativeBase):
+
+    __tablename__ = "sms_template"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    sms_template_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+
+    name = sa.Column(sa.String(128), nullable=False)
+    external_template_id = sa.Column(sa.String(128), nullable=False)
+    sms_content = sa.Column(sa.String(10240), nullable=False)
+    sms_type = sa.Column(sa.String(32), nullable=False)
+
+    sms_provider_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey(f"{BASE_SCHEMA}.sms_provider.sms_provider_id"),
+        nullable=False
+    )
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+

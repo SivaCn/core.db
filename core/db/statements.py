@@ -31,6 +31,10 @@ from core.db.models.meta import (
     MenuRoleModel,
 
     TenantConfigModel,
+
+    SmsProviderModel,
+    SmsProviderConfigModel,
+    SmsTemplateModel,
 )
 
 from core.db.models.tenant import (
@@ -922,6 +926,66 @@ def stmt_query_file(
     if user_id:
         stmt = stmt.where(
             FileModel.user_id == user_id
+        )
+
+    return stmt
+
+
+def stmt_query_sms_provider(
+        name: str,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        SmsProviderModel
+    ).where(
+        SmsProviderModel.is_active == is_active
+    )
+
+    if name:
+        stmt = stmt.where(
+            SmsProviderModel.name == name
+        )
+
+    return stmt
+
+
+def stmt_query_sms_provider_config(
+        sms_provider_id: Optional[int] = None,
+        config_type: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        SmsProviderConfigModel
+    ).where(
+        SmsProviderConfigModel.is_active == is_active
+    )
+
+    if sms_provider_id:
+        stmt = stmt.where(
+            SmsProviderConfigModel.sms_provider_id == sms_provider_id
+        )
+
+    if config_type:
+        stmt = stmt.where(
+            SmsProviderConfigModel.config_type == config_type
+        )
+
+    return stmt
+
+
+def stmt_query_sms_template(
+        name: str,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        SmsTemplateModel
+    ).where(
+        SmsTemplateModel.is_active == is_active
+    )
+
+    if name:
+        stmt = stmt.where(
+            SmsTemplateModel.name == name
         )
 
     return stmt
