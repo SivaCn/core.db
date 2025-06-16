@@ -252,3 +252,20 @@ class SmsTemplateModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+class TaxRateModel(DeclarativeBase):
+
+    __tablename__ = "tax_rate"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    tax_rate_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+
+    name = sa.Column(sa.String(128), nullable=False)
+    description = sa.Column(sa.String(512), nullable=True)
+    rate = sa.Column(sa.Float, nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+

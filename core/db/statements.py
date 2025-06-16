@@ -27,14 +27,13 @@ from core.db.models.meta import (
     RoleModel,
     AdminRoleModel,
 
-    MenuModel,
-    MenuRoleModel,
-
     TenantConfigModel,
 
     SmsProviderModel,
     SmsProviderConfigModel,
     SmsTemplateModel,
+
+    TaxRateModel,
 )
 
 from core.db.models.tenant import (
@@ -83,9 +82,7 @@ from web.backend.common import (
     PagedType,
 
     StringFilter,
-    DateFilter,
     NumericFilter,
-    CouponDiscountTypeEnum,
 )
 # ----------- END: In-App Imports ---------- #
 
@@ -860,6 +857,7 @@ def stmt_list_cart_items(
     stmt = select(
         CartModel.cart_slug,
         TariffModel.tariff_slug,
+        TariffModel.price,
         CartItemModel.cart_item_slug,
         CartItemModel.quantity,
     ).select_from(
@@ -989,4 +987,15 @@ def stmt_query_sms_template(
         )
 
     return stmt
+
+
+def stmt_query_tax_rate(is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    return select(
+        TaxRateModel
+    ).where(
+        TaxRateModel.is_active == is_active,
+    ).order_by(
+        TaxRateModel.tax_rate_id
+    )
 
