@@ -11,20 +11,20 @@
 """
 
 # ----------- START: Native Imports ---------- #
-import datetime
 # ----------- END: Native Imports ---------- #
 
 # ----------- START: Third Party Imports ---------- #
 import sqlalchemy as sa
 
-from sqlalchemy.inspection import inspect
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.orm import relationship, Mapped
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
 # ----------- END: Third Party Imports ---------- #
 
 # ----------- START: In-App Imports ---------- #
+from core.db.config import (
+    BASE_SCHEMA,
+)
+
 from core.db.alembic import (
     #
     # Reusable Table Fields
@@ -33,10 +33,6 @@ from core.db.alembic import (
     model_updated_by,
     model_created_date,
     model_updated_date,
-
-    #
-    # Constants
-    BASE_SCHEMA,
 )
 # ----------- END: In-App Imports ---------- #
 

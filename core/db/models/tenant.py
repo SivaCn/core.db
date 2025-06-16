@@ -17,10 +17,16 @@
 import sqlalchemy as sa
 
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 # ----------- END: Third Party Imports ---------- #
 
 # ----------- START: In-App Imports ---------- #
+from core.db.config import (
+    BASE_SCHEMA,
+    LOG_SCHEMA,
+)
+
 from core.db.alembic import (
     #
     # Reusable Table Fields
@@ -29,10 +35,6 @@ from core.db.alembic import (
     model_updated_by,
     model_created_date,
     model_updated_date,
-
-    #
-    # Constants
-    BASE_SCHEMA,
 )
 # ----------- END: In-App Imports ---------- #
 
@@ -428,6 +430,30 @@ class SmsLogModel(DeclarativeBase):
 
     is_active = model_is_active()
     updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class ApiLogModel(DeclarativeBase):
+
+    __tablename__ = "api_log"
+    __table_args__ = {"schema": LOG_SCHEMA}
+
+    api_log_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=True)
+    request_id = sa.Column(UUID(as_uuid=True), nullable=False, server_default=sa.text("gen_random_uuid()"))
+
+    method = sa.Column(sa.String(16), nullable=False)
+    path = sa.Column(sa.String(512), nullable=False)
+    client = sa.Column(sa.String(1024), nullable=False)
+    server = sa.Column(sa.String(128), nullable=False)
+    api_name = sa.Column(sa.String(128), nullable=False)
+    status = sa.Column(sa.String(16), nullable=False)
+    status_code = sa.Column(sa.Integer, nullable=False)
+    error_detail = sa.Column(sa.String(10240), nullable=True)
+    error_trace = sa.Column(sa.String, nullable=True)
+
     created_date = model_created_date()
     updated_date = model_updated_date()
 

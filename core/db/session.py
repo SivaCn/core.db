@@ -30,10 +30,11 @@ from sqlalchemy.ext.asyncio import (
 # ----------- END: Third Party Imports ---------- #
 
 # ----------- START: In-App Imports ---------- #
-from core.utils.constants import const_db, const_business
+from core.utils.constants import (
+    const_db,
+)
 
 from core.utils.helpers.environ import (
-    get_build_path,
     get_build_config,
 )
 
@@ -167,9 +168,6 @@ async def get_tenant_replica_session(tenant, verbose=False):
 @asynccontextmanager
 async def get_db_sessions(workspace: Optional[str] = None):
     """Provides both master and replica database sessions."""
-
-    if workspace and workspace == const_business.NA:
-        raise Exception(f"Expecting Workspace name, Got None")
 
     #
     # NOTE: Do not move this import outside

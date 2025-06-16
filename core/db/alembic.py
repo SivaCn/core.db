@@ -11,8 +11,6 @@
 """
 
 # ----------- START: Native Imports ---------- #
-import uuid
-
 from typing import List, Optional
 from collections import namedtuple
 from datetime import datetime, UTC
@@ -38,10 +36,6 @@ from core.utils.constants import (
 __all__ = [
     # All public symbols go here.
 ]
-
-#
-# A Schema stores all the configuration and business tables other than transactional ones.
-BASE_SCHEMA = 'base_schema'
 
 
 Role = namedtuple(

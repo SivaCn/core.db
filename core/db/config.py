@@ -36,6 +36,7 @@ __all__ = [
 
 #
 # A Schema stores all the configuration and business tables other than transactional ones.
+LOG_SCHEMA = 'log_schema'
 BASE_SCHEMA = 'base_schema'
 
 
