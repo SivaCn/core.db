@@ -362,6 +362,7 @@ class CartModel(DeclarativeBase):
     cart_slug = model_slug(field_name='cart_slug')
     user_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
     coupon_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.coupon.coupon_id'), nullable=True)
+    cart_summary = sa.Column(postgresql.JSON(), nullable=False, default=dict)
 
     is_active = model_is_active()
     updated_by = model_updated_by()
@@ -454,6 +455,30 @@ class ApiLogModel(DeclarativeBase):
     error_detail = sa.Column(sa.String(10240), nullable=True)
     error_trace = sa.Column(sa.String, nullable=True)
 
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class PaymentModel(DeclarativeBase):
+
+    __tablename__ = "payment"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    payment_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    payment_slug = model_slug(field_name='payment_slug')
+
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
+    cart_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.cart.cart_id'), nullable=False)
+    razorpay_order_id = sa.Column(sa.String(128), nullable=True)
+    razorpay_payment_id = sa.Column(sa.String(128), nullable=True)
+    amount = sa.Column(sa.Float, nullable=False)
+    event = sa.Column(sa.String(128), nullable=True)
+    request = sa.Column(postgresql.JSON(), nullable=False, server_default=sa.text("'{}'::json"))
+    response = sa.Column(postgresql.JSON(), nullable=False, server_default=sa.text("'{}'::json"))
+    is_verified = sa.Column(sa.Boolean, nullable=False, server_default=sa.text('FALSE'))
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
 

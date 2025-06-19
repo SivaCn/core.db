@@ -62,6 +62,8 @@ from core.db.models.tenant import (
     CouponTariffModel,
 
     FileModel,
+
+    PaymentModel,
 )
 
 from core.utils.constants import (
@@ -471,6 +473,7 @@ def stmt_delete_tariff_feature(where: dict, updated_by: int):
 
 
 def stmt_query_user(
+        user_id: Optional[int] = None,
         user_slug: Optional[str] = None,
         phone: Optional[StringFilter] = None,
         email: Optional[StringFilter] = None,
@@ -481,6 +484,11 @@ def stmt_query_user(
     ).where(
         UserModel.is_active == is_active
     )
+
+    if user_id:
+        stmt = stmt.where(
+            UserModel.user_id == user_id
+        )
 
     if user_slug:
         stmt = stmt.where(
@@ -998,4 +1006,28 @@ def stmt_query_tax_rate(is_active: Optional[str] = const_business.IS_ACTIVE_YES)
     ).order_by(
         TaxRateModel.tax_rate_id
     )
+
+
+def stmt_query_payment(
+        payment_id: Optional[int] = None,
+        payment_slug: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        PaymentModel
+    ).where(
+        PaymentModel.is_active == is_active
+    )
+
+    if payment_id:
+        stmt = stmt.where(
+            PaymentModel.payment_id == payment_id
+        )
+
+    if payment_slug:
+        stmt = stmt.where(
+            PaymentModel.payment_slug == payment_slug
+        )
+
+    return stmt
 
