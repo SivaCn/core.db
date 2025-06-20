@@ -482,3 +482,22 @@ class PaymentModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+
+class UserTariffModel(DeclarativeBase):
+
+    __tablename__ = "user_tariff"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_tariff_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
+    tariff_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.tariff.tariff_id'), nullable=False)
+    quantity = sa.Column(sa.Integer, nullable=False, default=1),
+    payment_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.payment.payment_id'), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
