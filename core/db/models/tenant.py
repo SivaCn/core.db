@@ -402,7 +402,6 @@ class FileModel(DeclarativeBase):
     file_size = sa.Column(sa.BigInteger, nullable=False)
 
     storage_provider = sa.Column(sa.String(128), nullable=False)
-    bucket = sa.Column(sa.String(128), nullable=False)
     path = sa.Column(sa.String(10240), nullable=False)
     thumbnail_path = sa.Column(sa.String(10240), nullable=True)
 
