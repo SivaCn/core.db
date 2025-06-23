@@ -64,6 +64,10 @@ from core.db.models.tenant import (
     FileModel,
 
     PaymentModel,
+
+    WillModel,
+    WillWitnessModel,
+    UserWillModel,
 )
 
 from core.utils.constants import (
@@ -1031,3 +1035,65 @@ def stmt_query_payment(
 
     return stmt
 
+
+def stmt_query_will(
+        will_id: Optional[int] = None,
+        will_slug: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        WillModel
+    ).where(
+        WillModel.is_active == is_active
+    )
+
+    if will_id:
+        stmt = stmt.where(
+            WillModel.will_id == will_id
+        )
+
+    if will_slug:
+        stmt = stmt.where(
+            WillModel.will_slug == will_slug
+        )
+
+    return stmt
+
+def stmt_query_will_witness(
+        will_id: Optional[int] = None,
+        person_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        WillWitnessModel
+    ).where(
+        WillWitnessModel.is_active == is_active
+    )
+
+    if will_id:
+        stmt = stmt.where(
+            WillWitnessModel.will_id == will_id
+        )
+
+    if person_id:
+        stmt = stmt.where(
+            WillWitnessModel.person_id == person_id
+        )
+
+    return stmt
+
+
+def stmt_query_user_will(
+        user_id: Optional[int] = None,
+        will_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(UserWillModel).where(UserWillModel.is_active == is_active)
+
+    if user_id:
+        stmt = stmt.where(UserWillModel.user_id == user_id)
+
+    if will_id:
+        stmt = stmt.where(UserWillModel.will_id == will_id)
+
+    return stmt

@@ -501,3 +501,48 @@ class UserTariffModel(DeclarativeBase):
     created_date = model_created_date()
     updated_date = model_updated_date()
 
+
+class WillModel(DeclarativeBase):
+
+    __tablename__ = "will"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    will_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    will_slug = model_slug(field_name='will_slug')
+    name = sa.Column(sa.String(128), nullable=True)
+    description = sa.Column(sa.String(128), nullable=True)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class UserWillModel(DeclarativeBase):
+
+    __tablename__ = "user_will"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    user_will_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
+    will_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.will.will_id'), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class WillWitnessModel(DeclarativeBase):
+
+    __tablename__ = "will_witness"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    will_witness_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    will_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.will.will_id'), nullable=False)
+    person_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.person.person_id'), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
