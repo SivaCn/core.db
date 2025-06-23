@@ -67,6 +67,8 @@ class TenantConfigModel(DeclarativeBase):
     replica_db_username = sa.Column(sa.String(128), nullable=True)
     replica_db_password = sa.Column(sa.String(128), nullable=True)
 
+    storage_bucket = sa.Column(sa.String(64), nullable=False)
+
     is_migrated = sa.Column(sa.Boolean, nullable=False, default=False)
 
     theme = sa.Column(sa.JSON, nullable=False, default=dict)
