@@ -493,7 +493,7 @@ class UserTariffModel(DeclarativeBase):
 
     user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
     tariff_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.tariff.tariff_id'), nullable=False)
-    quantity = sa.Column(sa.Integer, nullable=False, default=1),
+    quantity = sa.Column(sa.Integer, nullable=False, default=1)
     payment_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.payment.payment_id'), nullable=False)
 
     is_active = model_is_active()
