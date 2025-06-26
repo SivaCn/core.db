@@ -510,7 +510,7 @@ class WillModel(DeclarativeBase):
     will_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
     will_slug = model_slug(field_name='will_slug')
     name = sa.Column(sa.String(128), nullable=True)
-    description = sa.Column(sa.String(128), nullable=True)
+    description = sa.Column(sa.String(1024), nullable=True)
 
     is_active = model_is_active()
     updated_by = model_updated_by()
