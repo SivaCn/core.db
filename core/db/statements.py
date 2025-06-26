@@ -1084,6 +1084,10 @@ def stmt_query_will_witness(
     return stmt
 
 
+def stmt_delete_will_witness(where: dict, updated_by: int):
+    return stmt_delete(model=WillWitnessModel, where=where, updated_by=updated_by)
+
+
 def stmt_query_user_will(
         user_id: Optional[int] = None,
         will_id: Optional[int] = None,
