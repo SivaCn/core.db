@@ -1171,3 +1171,17 @@ def stmt_list_person(
         stmt = stmt.where(PersonModel.dob <= eighteen_years_ago)
 
     return stmt
+
+
+def stmt_query_will_by_user_id(user_id: int):
+
+    return select(
+        WillModel
+    ).join(
+        UserWillModel,
+        and_(
+            UserWillModel.user_id == user_id,
+            UserWillModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    )
