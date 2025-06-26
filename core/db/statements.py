@@ -10,6 +10,7 @@
 """
 
 # ----------- START: Native Imports ---------- #
+from datetime import date
 from typing import Optional, List
 # ----------- END: Native Imports ---------- #
 
@@ -64,6 +65,10 @@ from core.db.models.tenant import (
     FileModel,
 
     PaymentModel,
+
+    WillModel,
+    WillWitnessModel,
+    UserWillModel,
 )
 
 from core.utils.constants import (
@@ -1031,3 +1036,152 @@ def stmt_query_payment(
 
     return stmt
 
+
+def stmt_query_will(
+        will_id: Optional[int] = None,
+        will_slug: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        WillModel
+    ).where(
+        WillModel.is_active == is_active
+    )
+
+    if will_id:
+        stmt = stmt.where(
+            WillModel.will_id == will_id
+        )
+
+    if will_slug:
+        stmt = stmt.where(
+            WillModel.will_slug == will_slug
+        )
+
+    return stmt
+
+def stmt_query_will_witness(
+        will_id: Optional[int] = None,
+        person_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        WillWitnessModel
+    ).where(
+        WillWitnessModel.is_active == is_active
+    )
+
+    if will_id:
+        stmt = stmt.where(
+            WillWitnessModel.will_id == will_id
+        )
+
+    if person_id:
+        stmt = stmt.where(
+            WillWitnessModel.person_id == person_id
+        )
+
+    return stmt
+
+
+def stmt_query_user_will(
+        user_id: Optional[int] = None,
+        will_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(UserWillModel).where(UserWillModel.is_active == is_active)
+
+    if user_id:
+        stmt = stmt.where(UserWillModel.user_id == user_id)
+
+    if will_id:
+        stmt = stmt.where(UserWillModel.will_id == will_id)
+
+    return stmt
+
+
+def stmt_list_person(
+        user_id: int,
+        person_id: Optional[List[int]] = None,
+        adult_only: Optional[bool] = False):
+
+    stmt = select(
+        PersonModel.person_slug,
+        PersonModel.name,
+        PersonModel.phone,
+        PersonModel.email,
+        PersonModel.parent_name,
+        PersonModel.dob,
+        PersonModel.gender,
+        PersonModel.notes,
+
+        UserPersonModel.relation,
+        UserPersonModel.association,
+
+        PersonIdentityModel.id_type,
+        PersonIdentityModel.id_value,
+
+        AddressModel.address_slug,
+        AddressModel.line1,
+        AddressModel.line2,
+        AddressModel.city,
+        AddressModel.state,
+        AddressModel.country,
+        AddressModel.postal_code,
+        AddressModel.created_date,
+        AddressModel.updated_date
+    ).select_from(
+        PersonModel
+    ).join(
+        UserPersonModel,
+        and_(
+            UserPersonModel.person_id == PersonModel.person_id,
+            UserPersonModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).join(
+        PersonIdentityModel,
+        and_(
+            PersonModel.person_id == PersonIdentityModel.person_id,
+            PersonIdentityModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).join(
+        AddressModel,
+        and_(
+            PersonModel.address_id == AddressModel.address_id,
+            AddressModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).where(
+        UserPersonModel.user_id == user_id
+    ).order_by(
+        PersonModel.person_id
+    )
+
+    if person_id:
+        stmt = stmt.where(
+            PersonModel.person_id.in_(person_id)
+        )
+
+    if adult_only:
+        today = date.today()
+        eighteen_years_ago = date(today.year - 18, today.month, today.day)
+
+        stmt = stmt.where(PersonModel.dob <= eighteen_years_ago)
+
+    return stmt
+
+
+def stmt_query_will_by_user_id(user_id: int):
+
+    return select(
+        WillModel
+    ).join(
+        UserWillModel,
+        and_(
+            UserWillModel.user_id == user_id,
+            UserWillModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    )
