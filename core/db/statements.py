@@ -1106,7 +1106,7 @@ def stmt_query_user_will(
 
 def stmt_list_person(
         user_id: int,
-        person_id: Optional[List[int]] = None,
+        person_ids: Optional[List[int]] = None,
         adult_only: Optional[bool] = False):
 
     stmt = select(
@@ -1163,9 +1163,9 @@ def stmt_list_person(
         PersonModel.person_id
     )
 
-    if person_id:
+    if person_ids:
         stmt = stmt.where(
-            PersonModel.person_id.in_(person_id)
+            PersonModel.person_id.in_(person_ids)
         )
 
     if adult_only:
