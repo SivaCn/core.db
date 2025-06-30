@@ -501,6 +501,25 @@ class UserTariffModel(DeclarativeBase):
     updated_date = model_updated_date()
 
 
+class WillStageModel(DeclarativeBase):
+
+    __tablename__ = "will_stage"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    will_stage_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    will_stage_slug = model_slug(field_name='will_stage_slug')
+
+    name = sa.Column(sa.String(128), nullable=False)
+    description = sa.Column(sa.String(1024), nullable=True)
+    priority = sa.Column(sa.Integer, nullable=False)
+    can_skip = sa.Column(sa.Boolean, nullable=False, default=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
 class WillModel(DeclarativeBase):
 
     __tablename__ = "will"
@@ -510,6 +529,7 @@ class WillModel(DeclarativeBase):
     will_slug = model_slug(field_name='will_slug')
     name = sa.Column(sa.String(128), nullable=True)
     description = sa.Column(sa.String(1024), nullable=True)
+    will_stage_id = sa.Column(sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.will_stage.will_stage_id'), nullable=False)
 
     is_active = model_is_active()
     updated_by = model_updated_by()

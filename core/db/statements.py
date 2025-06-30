@@ -67,6 +67,7 @@ from core.db.models.tenant import (
     PaymentModel,
 
     WillModel,
+    WillStageModel,
     WillWitnessModel,
     UserWillModel,
 )
@@ -1033,6 +1034,34 @@ def stmt_query_payment(
         stmt = stmt.where(
             PaymentModel.payment_slug == payment_slug
         )
+
+    return stmt
+
+
+def stmt_query_will_stage(
+        name: Optional[str] = None,
+        priority: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        WillStageModel
+    ).where(
+        WillStageModel.is_active == is_active,
+    )
+
+    if name:
+        stmt = stmt.where(
+            WillStageModel.name == name
+        )
+
+    if priority:
+        stmt = stmt.where(
+            WillStageModel.priority == priority
+        )
+
+    stmt = stmt.order_by(
+        WillStageModel.priority
+    )
 
     return stmt
 
