@@ -74,6 +74,7 @@ from core.db.models.tenant import (
     UserSessionModel,
 
     WillExecutorModel,
+    PrintRequestModel,
 )
 
 from core.utils.constants import (
@@ -1272,3 +1273,31 @@ def stmt_query_list_executor(will_id: int):
     ).order_by(
         desc(WillExecutorModel.is_primary)
     )
+def stmt_query_print_request(
+        user_id: Optional[int] = None,
+        will_id: Optional[int] = None,
+        status: Optional[list[str]] = None,
+        print_request_slug: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        PrintRequestModel
+    ).where(
+        PrintRequestModel.is_active == is_active
+    )
+
+    if user_id:
+        stmt = stmt.where(PrintRequestModel.user_id == user_id)
+
+    if will_id:
+        stmt = stmt.where(PrintRequestModel.will_id == will_id)
+
+    if status:
+        stmt = stmt.where(PrintRequestModel.status.in_(status))
+
+    if print_request_slug:
+        stmt = stmt.where(PrintRequestModel.print_request_slug == print_request_slug)
+
+    stmt = stmt.order_by(PrintRequestModel.print_request_id)
+
+    return stmt
