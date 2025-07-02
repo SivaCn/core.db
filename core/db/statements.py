@@ -71,6 +71,8 @@ from core.db.models.tenant import (
     WillWitnessModel,
     UserWillModel,
 
+    UserSessionModel,
+
     WillExecutorModel,
 )
 
@@ -190,18 +192,33 @@ def prepare_where_expression(field, operator, value, case_insensitive=True):
     return func(value)
 
 
-def stmt_delete(model, where: dict, updated_by: int):
+def stmt_delete(model, where: dict, updates: dict, updated_by: int):
 
     stmt = update(model)
 
     has_conditions = False
     for field, value in where.items():
 
-        has_conditions = True
+        field_obj = getattr(model, field)
 
-        stmt = stmt.where(
-            getattr(model, field) == value
-        )
+        if isinstance(value, (list, tuple)):
+            operator, *attrs = value
+
+            if operator == 'not equal to':
+                stmt = stmt.where(field_obj != attrs[0])
+
+            if operator == 'in':
+                stmt = stmt.where(field_obj.in_(attrs))
+
+            if operator == 'not in':
+                stmt = stmt.where(~field_obj.in_(attrs))
+
+        else:
+            #
+            # Applies Equal to condition
+            stmt = stmt.where(field_obj == value)
+
+        has_conditions = True
 
     if not has_conditions:
         raise Exception(
@@ -212,7 +229,12 @@ def stmt_delete(model, where: dict, updated_by: int):
     # Build susbtitute values
     stmt = stmt.values(
         updated_by=updated_by,
-        is_active=const_business.IS_ACTIVE_DELETED
+        is_active=const_business.IS_ACTIVE_DELETED,
+        **{
+            key: value
+            for key, value in updates.items()
+            if key not in ('updated_by', )
+        }
     )
 
     return stmt
@@ -1242,4 +1264,53 @@ def stmt_query_will_executor(
     stmt = stmt.order_by(WillExecutorModel.is_primary)
 
     return stmt
+
+
+def stmt_query_user_session(
+        user_session_slug: Optional[str] = None,
+        user_id: Optional[int] = None,
+        device_id: Optional[str] = None,
+        token: Optional[str] = None,
+        user_agent: Optional[str] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        UserSessionModel
+    ).where(
+        UserSessionModel.is_active == is_active
+    )
+
+    if user_session_slug:
+        stmt = stmt.where(
+            UserSessionModel.user_session_slug == user_session_slug
+        )
+
+    if user_id:
+        stmt = stmt.where(
+            UserSessionModel.user_id == user_id
+        )
+
+    if device_id:
+        stmt = stmt.where(
+            UserSessionModel.device_id == device_id
+        )
+
+    if token:
+        stmt = stmt.where(
+            UserSessionModel.token == token
+        )
+
+    if user_agent:
+        stmt = stmt.where(
+            UserSessionModel.user_agent == user_agent
+        )
+
+    return stmt
+
+
+def stmt_delete_user_session(where: dict, updates: dict, updated_by: Optional[int] = None):
+
+    updated_by = updated_by or updates['updated_by']
+
+    return stmt_delete(model=UserSessionModel, where=where, updates=updates, updated_by=updated_by)
 

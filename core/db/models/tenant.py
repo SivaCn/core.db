@@ -458,6 +458,27 @@ class ApiLogModel(DeclarativeBase):
     updated_date = model_updated_date()
 
 
+class UserSessionModel(DeclarativeBase):
+
+    __tablename__ = "user_session"
+    __table_args__ = {"schema": LOG_SCHEMA}
+
+    user_session_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    user_session_slug = model_slug(field_name='user_session_slug')
+
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
+    device_id = sa.Column(sa.String(256), nullable=True)
+    token = sa.Column(sa.String(10240), nullable=False)
+    ip_address = sa.Column(sa.String(128), nullable=False)
+    user_agent = sa.Column(sa.String(1024), nullable=False)
+    status = sa.Column(sa.String(64), nullable=True)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
 class PaymentModel(DeclarativeBase):
 
     __tablename__ = "payment"
