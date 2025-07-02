@@ -565,3 +565,20 @@ class WillWitnessModel(DeclarativeBase):
     updated_by = model_updated_by()
     created_date = model_created_date()
     updated_date = model_updated_date()
+
+
+class WillExecutorModel(DeclarativeBase):
+
+    __tablename__ = "will_executor"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    will_executor_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    will_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.will.will_id'), nullable=False)
+    person_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.person.person_id'), nullable=False)
+    is_primary = sa.Column(sa.Boolean, nullable=False, default=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
