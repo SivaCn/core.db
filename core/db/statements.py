@@ -70,6 +70,8 @@ from core.db.models.tenant import (
     WillStageModel,
     WillWitnessModel,
     UserWillModel,
+
+    WillExecutorModel,
 )
 
 from core.utils.constants import (
@@ -1218,3 +1220,26 @@ def stmt_query_will_by_user_id(user_id: int):
         ),
         isouter=True
     )
+
+
+def stmt_query_will_executor(
+        will_id: Optional[int] = None,
+        person_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(WillExecutorModel).where(WillExecutorModel.is_active == is_active)
+
+    if will_id:
+        stmt = stmt.where(
+            WillExecutorModel.will_id == will_id
+        )
+
+    if person_id:
+        stmt = stmt.where(
+            WillExecutorModel.person_id == person_id
+        )
+
+    stmt = stmt.order_by(WillExecutorModel.is_primary)
+
+    return stmt
+
