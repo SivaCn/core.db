@@ -18,6 +18,8 @@ import sqlalchemy as sa
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.declarative import declarative_base
+
+from sqlalchemy.dialects.postgresql import UUID, JSON
 # ----------- END: Third Party Imports ---------- #
 
 # ----------- START: In-App Imports ---------- #
@@ -106,8 +108,8 @@ class AdminModel(DeclarativeBase):
     name = sa.Column(sa.String(128), nullable=False)
     email = sa.Column(sa.String(128), nullable=False)
 
-    dob = sa.Column('dob', sa.Date, nullable=True)
-    gender = sa.Column('gender', sa.String(16), nullable=True)
+    dob = sa.Column(sa.Date, nullable=True)
+    gender = sa.Column(sa.String(16), nullable=True)
 
     is_accepted = sa.Column(sa.Boolean, nullable=False)
     password_hash = sa.Column(sa.String(1024), nullable=False)
@@ -140,7 +142,7 @@ class AdminInviteModel(DeclarativeBase):
     __tablename__ = "admin_invite"
     __table_args__ = {"schema": BASE_SCHEMA}
 
-    admin_invite_id = sa.Column('admin_invite_id', sa.Integer, primary_key=True, autoincrement=True)
+    admin_invite_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     admin_invite_slug = model_slug(field_name='admin_invite_slug')
 
     token = sa.Column(sa.String(10240), nullable=False)
@@ -265,6 +267,38 @@ class TaxRateModel(DeclarativeBase):
     name = sa.Column(sa.String(128), nullable=False)
     description = sa.Column(sa.String(512), nullable=True)
     rate = sa.Column(sa.Float, nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class SchedulerJobLogModel(DeclarativeBase):
+
+    __tablename__ = "scheduler_job_log"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    scheduler_job_log_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    job_id = sa.Column(UUID(as_uuid=True), unique=True, nullable=False)
+    name = sa.Column(sa.String(128), nullable=True)
+    workspace = sa.Column(sa.String(32), nullable=False)
+
+    job_action = sa.Column(sa.String(32), nullable=False)
+    job_type = sa.Column(sa.String(32), nullable=False)
+
+    status = sa.Column(sa.String(64), nullable=False)
+
+    start_date = sa.Column(sa.DateTime(timezone=False), nullable=False)
+    end_date = sa.Column(sa.DateTime(timezone=False), nullable=True)
+
+    callback = sa.Column(sa.String(128), nullable=False)
+    payload = sa.Column(JSON, nullable=False)
+
+    next_run_time = sa.Column(sa.DateTime(timezone=False), nullable=False)
+
+    error_detail = sa.Column(sa.String(10240), nullable=True)
+    error_trace = sa.Column(sa.String(), nullable=True)
 
     is_active = model_is_active()
     updated_by = model_updated_by()
