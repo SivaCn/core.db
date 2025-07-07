@@ -1314,3 +1314,32 @@ def stmt_delete_user_session(where: dict, updates: dict, updated_by: Optional[in
 
     return stmt_delete(model=UserSessionModel, where=where, updates=updates, updated_by=updated_by)
 
+
+def stmt_query_list_executor(will_id: int):
+
+    return select(
+        PersonModel,
+        UserPersonModel,
+        WillExecutorModel,
+    ).select_from(
+        PersonModel
+    ).join(
+        WillExecutorModel,
+        and_(
+            PersonModel.person_id == WillExecutorModel.person_id,
+            WillExecutorModel.is_active == const_business.IS_ACTIVE_YES,
+            PersonModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).join(
+        UserPersonModel,
+        and_(
+            UserPersonModel.person_id == PersonModel.person_id,
+            UserPersonModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).where(
+        WillExecutorModel.will_id == will_id
+    ).order_by(
+        desc(WillExecutorModel.is_primary)
+    )
