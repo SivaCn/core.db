@@ -192,7 +192,7 @@ def prepare_where_expression(field, operator, value, case_insensitive=True):
     return func(value)
 
 
-def stmt_delete(model, where: dict, updates: dict, updated_by: int):
+def stmt_delete(model, where: dict, updates: Optional[dict] = None):
 
     stmt = update(model)
 
@@ -228,13 +228,8 @@ def stmt_delete(model, where: dict, updates: dict, updated_by: int):
     #
     # Build susbtitute values
     stmt = stmt.values(
-        updated_by=updated_by,
         is_active=const_business.IS_ACTIVE_DELETED,
-        **{
-            key: value
-            for key, value in updates.items()
-            if key not in ('updated_by', )
-        }
+        **{key: value for key, value in (updates or dict()).items()}
     )
 
     return stmt
@@ -344,23 +339,8 @@ def stmt_query_roles_by_admin(
     return stmt
 
 
-def stmt_delete_admin_roles(where: dict, updated_by: int):
-
-    stmt = update(AdminRoleModel)
-
-    #
-    # Build Where conditions
-    for field, value in where.items():
-        stmt = stmt.where(getattr(AdminRoleModel, field) == value)
-
-    #
-    # Build susbtitute values
-    stmt = stmt.values(
-        updated_by=updated_by,
-        is_active=const_business.IS_ACTIVE_DELETED
-    )
-
-    return stmt
+def stmt_delete_admin_roles(where: dict, updates: dict):
+    return stmt_delete(model=AdminRoleModel, where=where, updates=updates)
 
 
 def stmt_query_tenant_config(
@@ -474,32 +454,8 @@ def stmt_query_tariff(
     return stmt
 
 
-def stmt_delete_tariff_feature(where: dict, updated_by: int):
-
-    stmt = update(TariffFeatureModel)
-
-    has_conditions = False
-    for field, value in where.items():
-
-        has_conditions = True
-
-        stmt = stmt.where(
-            getattr(TariffFeatureModel, field) == value
-        )
-
-    if not has_conditions:
-        raise Exception(
-            f"Quiting as no filter conditions provoided while deleting all the entries in 'TariffFeatureModel'"
-        )
-
-    #
-    # Build susbtitute values
-    stmt = stmt.values(
-        updated_by=updated_by,
-        is_active=const_business.IS_ACTIVE_DELETED
-    )
-
-    return stmt
+def stmt_delete_tariff_feature(where: dict, updates: dict):
+    return stmt_delete(model=TariffFeatureModel, where=where, updates=updates)
 
 
 def stmt_query_user(
@@ -618,32 +574,8 @@ def stmt_query_address_by_user(
     return stmt
 
 
-def stmt_delete_user_address(where: dict, updated_by: int):
-
-    stmt = update(UserAddressModel)
-
-    has_conditions = False
-    for field, value in where.items():
-
-        has_conditions = True
-
-        stmt = stmt.where(
-            getattr(UserAddressModel, field) == value
-        )
-
-    if not has_conditions:
-        raise Exception(
-            f"Quiting as no filter conditions provoided while deleting all the entries in 'UserAddressModel'"
-        )
-
-    #
-    # Build susbtitute values
-    stmt = stmt.values(
-        updated_by=updated_by,
-        is_active=const_business.IS_ACTIVE_DELETED
-    )
-
-    return stmt
+def stmt_delete_user_address(where: dict, updates: dict):
+    return stmt_delete(model=UserAddressModel, where=where, updates=updates)
 
 
 def stmt_query_person(
@@ -688,8 +620,8 @@ def stmt_query_person_identity(
     return stmt
 
 
-def stmt_delete_person_identity(where: dict, updated_by: int):
-    return stmt_delete(model=PersonIdentityModel, where=where, updated_by=updated_by)
+def stmt_delete_person_identity(where: dict, updates: dict):
+    return stmt_delete(model=PersonIdentityModel, where=where, updates=updates)
 
 
 def stmt_query_user_person(
@@ -795,8 +727,8 @@ def stmt_query_coupon(
     return stmt
 
 
-def stmt_delete_coupon_tariff(where: dict, updated_by: int):
-    return stmt_delete(model=CouponTariffModel, where=where, updated_by=updated_by)
+def stmt_delete_coupon_tariff(where: dict, updates: dict):
+    return stmt_delete(model=CouponTariffModel, where=where, updates=updates)
 
 
 def stmt_query_tag(
@@ -830,8 +762,8 @@ def stmt_query_tag(
     return stmt
 
 
-def stmt_delete_tariff_tag(where: dict, updated_by: int):
-    return stmt_delete(model=TariffTagModel, where=where, updated_by=updated_by)
+def stmt_delete_tariff_tag(where: dict, updates: dict):
+    return stmt_delete(model=TariffTagModel, where=where, updates=updates)
 
 
 def stmt_query_cart(
@@ -929,12 +861,12 @@ def stmt_list_cart_items(
     return stmt
 
 
-def stmt_delete_cart(where: dict, updated_by: int):
-    return stmt_delete(model=CartModel, where=where, updated_by=updated_by)
+def stmt_delete_cart(where: dict, updates: dict):
+    return stmt_delete(model=CartModel, where=where, updates=updates)
 
 
-def stmt_delete_cart_item(where: dict, updated_by: int):
-    return stmt_delete(model=CartItemModel, where=where, updated_by=updated_by)
+def stmt_delete_cart_item(where: dict, updates: dict):
+    return stmt_delete(model=CartItemModel, where=where, updates=updates)
 
 
 def stmt_query_file(
@@ -1137,8 +1069,8 @@ def stmt_query_will_witness(
     return stmt
 
 
-def stmt_delete_will_witness(where: dict, updated_by: int):
-    return stmt_delete(model=WillWitnessModel, where=where, updated_by=updated_by)
+def stmt_delete_will_witness(where: dict, updates: dict):
+    return stmt_delete(model=WillWitnessModel, where=where, updates=updates)
 
 
 def stmt_query_user_will(
@@ -1308,11 +1240,8 @@ def stmt_query_user_session(
     return stmt
 
 
-def stmt_delete_user_session(where: dict, updates: dict, updated_by: Optional[int] = None):
-
-    updated_by = updated_by or updates['updated_by']
-
-    return stmt_delete(model=UserSessionModel, where=where, updates=updates, updated_by=updated_by)
+def stmt_delete_user_session(where: dict, updates: dict):
+    return stmt_delete(model=UserSessionModel, where=where, updates=updates)
 
 
 def stmt_query_list_executor(will_id: int):
