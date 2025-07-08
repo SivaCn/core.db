@@ -609,7 +609,6 @@ class PrintRequestModel(DeclarativeBase):
     name = sa.Column(sa.String(128), nullable=False)
     phone = sa.Column(sa.String(128), nullable=False)
     email = sa.Column(sa.String(128), nullable=True)
-    is_address_exist = sa.Column(sa.Boolean, nullable=True)
     address_id = sa.Column(sa.BigInteger, nullable=True)
     status = sa.Column(sa.String(32), nullable=True)
     user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
