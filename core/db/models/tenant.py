@@ -598,6 +598,22 @@ class WillExecutorModel(DeclarativeBase):
     person_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.person.person_id'), nullable=False)
     is_primary = sa.Column(sa.Boolean, nullable=False, default=False)
 
+
+class PrintRequestModel(DeclarativeBase):
+
+    __tablename__= "print_request"
+    __table_args__= {"schema": BASE_SCHEMA}
+
+    print_request_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    print_request_slug = model_slug(field_name='print_request_slug')
+    name = sa.Column(sa.String(128), nullable=False)
+    phone = sa.Column(sa.String(128), nullable=False)
+    email = sa.Column(sa.String(128), nullable=True)
+    address_id = sa.Column(sa.BigInteger, nullable=True)
+    status = sa.Column(sa.String(32), nullable=True)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.user.user_id"), nullable=False)
+    will_id = sa.Column(sa.BigInteger, sa.ForeignKey(f"{BASE_SCHEMA}.will.will_id"), nullable=False)
+
     is_active = model_is_active()
     updated_by = model_updated_by()
     created_date = model_created_date()
