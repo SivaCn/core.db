@@ -1273,6 +1273,8 @@ def stmt_query_list_executor(will_id: int):
     ).order_by(
         desc(WillExecutorModel.is_primary)
     )
+
+
 def stmt_query_print_request(
         user_id: Optional[int] = None,
         will_id: Optional[int] = None,
@@ -1301,3 +1303,9 @@ def stmt_query_print_request(
     stmt = stmt.order_by(PrintRequestModel.print_request_id)
 
     return stmt
+
+
+def stmt_delete_will_executor(where: dict, updates: dict):
+    return stmt_delete(model=WillExecutorModel, where=where, updates=updates)
+
+
