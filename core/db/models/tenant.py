@@ -515,6 +515,8 @@ class UserTariffModel(DeclarativeBase):
     tariff_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.tariff.tariff_id'), nullable=False)
     quantity = sa.Column(sa.Integer, nullable=False, default=1)
     payment_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.payment.payment_id'), nullable=False)
+    start_date = sa.Column(sa.DateTime(timezone=False), nullable=False)
+    end_date = sa.Column(sa.DateTime(timezone=False), nullable=False)
 
     is_active = model_is_active()
     updated_by = model_updated_by()
