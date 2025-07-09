@@ -75,6 +75,8 @@ from core.db.models.tenant import (
 
     WillExecutorModel,
     PrintRequestModel,
+
+    WillGuardianModel,
 )
 
 from core.utils.constants import (
@@ -1308,4 +1310,23 @@ def stmt_query_print_request(
 def stmt_delete_will_executor(where: dict, updates: dict):
     return stmt_delete(model=WillExecutorModel, where=where, updates=updates)
 
+
+def stmt_query_will_guardian(
+        will_id: Optional[int] = None,
+        guardian_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        WillGuardianModel
+    ).where(
+        WillGuardianModel.is_active == is_active
+    )
+
+    if will_id:
+        stmt = stmt.where(WillGuardianModel.will_id == will_id)
+
+    if guardian_id:
+        stmt = stmt.where(WillGuardianModel.guardian_id == guardian_id)
+
+    return stmt
 
