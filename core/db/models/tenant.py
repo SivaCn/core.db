@@ -416,7 +416,7 @@ class FileModel(DeclarativeBase):
 class SmsLogModel(DeclarativeBase):
 
     __tablename__ = "sms_log"
-    __table_args__ = {"schema": BASE_SCHEMA}
+    __table_args__ = {"schema": LOG_SCHEMA}
 
     sms_log_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
     user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
