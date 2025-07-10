@@ -79,6 +79,7 @@ from core.db.models.tenant import (
     WillGuardianModel,
 
     UserTariffModel,
+    WillGuardianDependentModel,
 )
 
 from core.utils.constants import (
@@ -1350,3 +1351,21 @@ def stmt_delete_will_guardian(where: dict, updates: dict):
 def stmt_auto_expire_tariff(where: dict, updates: Optional[dict] = None):
     return stmt_delete(model=UserTariffModel, where=where, updates=updates or dict())
 
+def stmt_query_guardian_dependent(
+        will_guardian_id: Optional[int] = None,
+        dependent_id: Optional[int] = None,
+        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+
+    stmt = select(
+        WillGuardianDependentModel
+    ).where(
+        WillGuardianDependentModel.is_active == is_active
+    )
+
+    if will_guardian_id:
+        stmt = stmt.where(WillGuardianDependentModel.will_guardian_id == will_guardian_id)
+
+    if dependent_id:
+        stmt = stmt.where(WillGuardianDependentModel.dependent_id == dependent_id)
+
+    return stmt
