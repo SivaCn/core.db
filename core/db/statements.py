@@ -1314,6 +1314,7 @@ def stmt_delete_will_executor(where: dict, updates: dict):
 def stmt_query_will_guardian(
         will_id: Optional[int] = None,
         guardian_id: Optional[int] = None,
+        will_guardian_slug: Optional[str] = None,
         is_active: Optional[str] = const_business.IS_ACTIVE_YES):
 
     stmt = select(
@@ -1328,5 +1329,10 @@ def stmt_query_will_guardian(
     if guardian_id:
         stmt = stmt.where(WillGuardianModel.guardian_id == guardian_id)
 
+    if will_guardian_slug:
+        stmt = stmt.where(WillGuardianModel.will_guardian_slug == will_guardian_slug)
+
     return stmt
 
+def stmt_delete_will_guardian(where: dict, updates: dict):
+    return stmt_delete(model=WillGuardianModel, where=where, updates=updates)
