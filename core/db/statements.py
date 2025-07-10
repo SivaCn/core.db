@@ -77,6 +77,8 @@ from core.db.models.tenant import (
     PrintRequestModel,
 
     WillGuardianModel,
+
+    UserTariffModel,
 )
 
 from core.utils.constants import (
@@ -215,6 +217,12 @@ def stmt_delete(model, where: dict, updates: Optional[dict] = None):
 
             if operator == 'not in':
                 stmt = stmt.where(~field_obj.in_(attrs))
+
+            if operator == 'greater than':
+                stmt = stmt.where(field_obj < attrs[0])
+
+            if operator == 'lesser than':
+                stmt = stmt.where(field_obj > attrs[0])
 
         else:
             #
@@ -1334,5 +1342,11 @@ def stmt_query_will_guardian(
 
     return stmt
 
+
 def stmt_delete_will_guardian(where: dict, updates: dict):
     return stmt_delete(model=WillGuardianModel, where=where, updates=updates)
+
+
+def stmt_auto_expire_tariff(where: dict, updates: Optional[dict] = None):
+    return stmt_delete(model=UserTariffModel, where=where, updates=updates or dict())
+
