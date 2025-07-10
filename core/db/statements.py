@@ -1351,6 +1351,7 @@ def stmt_delete_will_guardian(where: dict, updates: dict):
 def stmt_auto_expire_tariff(where: dict, updates: Optional[dict] = None):
     return stmt_delete(model=UserTariffModel, where=where, updates=updates or dict())
 
+
 def stmt_query_guardian_dependent(
         will_guardian_id: Optional[int] = None,
         dependent_id: Optional[int] = None,
