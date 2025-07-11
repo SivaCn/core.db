@@ -1370,3 +1370,8 @@ def stmt_query_guardian_dependent(
         stmt = stmt.where(WillGuardianDependentModel.dependent_id == dependent_id)
 
     return stmt
+
+
+def stmt_delete_guardian_dependent(where: dict, updates: dict):
+    return stmt_delete(model=WillGuardianDependentModel, where=where, updates=updates)
+
