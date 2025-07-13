@@ -466,6 +466,22 @@ def stmt_query_tariff(
     return stmt
 
 
+def stmt_list_user_active_tariffs(user_id: int):
+
+    return select(
+        TariffModel
+    ).join(
+        UserTariffModel,
+        and_(
+            UserTariffModel.tariff_id == TariffModel.tariff_id,
+            UserTariffModel.is_active == const_business.IS_ACTIVE_YES,
+        )
+    ).where(
+        UserTariffModel.user_id == user_id,
+        TariffModel.is_active == const_business.IS_ACTIVE_YES,
+    )
+
+
 def stmt_delete_tariff_feature(where: dict, updates: dict):
     return stmt_delete(model=TariffFeatureModel, where=where, updates=updates)
 
