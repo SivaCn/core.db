@@ -76,7 +76,8 @@ class TariffModel(DeclarativeBase):
     category = sa.Column(sa.String(32), nullable=False)
     name = sa.Column(sa.String(128), nullable=False)
     description = sa.Column(sa.String(1204), nullable=False)
-    price = sa.Column(sa.Float, nullable=False)
+    price = sa.Column(sa.Float, nullable=True)
+    price_chart_id = sa.Column(sa.Integer, sa.ForeignKey(f"{BASE_SCHEMA}.price_chart.price_chart_id"), nullable=True)
     is_listable = sa.Column(sa.Boolean, nullable=True, default=True)
     is_recommended = sa.Column(sa.Boolean, nullable=True, default=False)
     duration_unit = sa.Column(sa.String(32), nullable=False)
@@ -405,7 +406,43 @@ class FileModel(DeclarativeBase):
     path = sa.Column(sa.String(10240), nullable=False)
     thumbnail_path = sa.Column(sa.String(10240), nullable=True)
 
-    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=False)
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.user.user_id'), nullable=True)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class PriceChartModel(DeclarativeBase):
+
+    __tablename__ = "price_chart"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    price_chart_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    file_slug = model_slug(field_name='price_chart_slug')
+
+    file_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.file.file_id'), nullable=False)
+
+    is_active = model_is_active()
+    updated_by = model_updated_by()
+    created_date = model_created_date()
+    updated_date = model_updated_date()
+
+
+class PriceChartDetailModel(DeclarativeBase):
+
+    __tablename__ = "price_chart_detail"
+    __table_args__ = {"schema": BASE_SCHEMA}
+
+    price_chart_detail_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+
+    price_chart_id = sa.Column(
+        sa.Integer, sa.ForeignKey(f'{BASE_SCHEMA}.price_chart.price_chart_id'), nullable=False
+    )
+    age = sa.Column(sa.Integer, nullable=False)
+    price = sa.Column(sa.Float, nullable=False)
+    nri_price = sa.Column(sa.Float, nullable=False)
 
     is_active = model_is_active()
     updated_by = model_updated_by()
