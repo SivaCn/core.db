@@ -1372,8 +1372,8 @@ def stmt_query_will_guardian(
     return stmt
 
 
-def stmt_delete_will_guardian(where: dict, updates: dict):
-    return stmt_delete(model=WillGuardianModel, where=where, updates=updates)
+def stmt_delete_will_guardian(where: dict, updates: Optional[dict] = None):
+    return stmt_delete(model=WillGuardianModel, where=where, updates=updates or dict())
 
 
 def stmt_auto_expire_tariff(where: dict, updates: Optional[dict] = None):
@@ -1400,8 +1400,8 @@ def stmt_query_guardian_dependent(
     return stmt
 
 
-def stmt_delete_guardian_dependent(where: dict, updates: dict):
-    return stmt_delete(model=WillGuardianDependentModel, where=where, updates=updates)
+def stmt_delete_guardian_dependent(where: dict, updates: Optional[dict] = None):
+    return stmt_delete(model=WillGuardianDependentModel, where=where, updates=updates or dict())
 
 
 def stmt_list_person_roles(
