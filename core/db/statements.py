@@ -15,8 +15,19 @@ from typing import Optional, List
 # ----------- END: Native Imports ---------- #
 
 # ----------- START: Third Party Imports ---------- #
-from sqlalchemy import inspect, String, Text, Unicode, UnicodeText
-from sqlalchemy import update, func, desc, and_, or_
+from sqlalchemy import (
+    inspect,
+    String,
+    Text,
+    Unicode,
+    UnicodeText,
+    literal,
+    update,
+    func,
+    desc,
+    and_,
+    or_,
+)
 from sqlalchemy.future import select
 # ----------- END: Third Party Imports ---------- #
 
@@ -1123,6 +1134,7 @@ def stmt_list_person(
         adult_only: Optional[bool] = False):
 
     stmt = select(
+        PersonModel.person_id,
         PersonModel.person_slug,
         PersonModel.name,
         PersonModel.phone,
@@ -1391,3 +1403,44 @@ def stmt_query_guardian_dependent(
 def stmt_delete_guardian_dependent(where: dict, updates: dict):
     return stmt_delete(model=WillGuardianDependentModel, where=where, updates=updates)
 
+
+def stmt_list_person_roles(
+        will_id: int,
+        person_id: int):
+
+    stmt_executor = select(
+        literal("executor").label("role")
+    ).select_from(
+        WillExecutorModel
+    ).where(
+        WillExecutorModel.is_active == const_business.IS_ACTIVE_YES,
+        WillExecutorModel.will_id == will_id,
+        WillExecutorModel.person_id == person_id,
+    )
+
+    stmt_guardian = select(
+        literal("guardian").label("role")
+    ).select_from(
+        WillGuardianModel
+    ).where(
+        and_(
+            WillGuardianModel.is_active == const_business.IS_ACTIVE_YES,
+            WillGuardianModel.will_id == will_id,
+            or_(
+                WillGuardianModel.guardian_id == person_id,
+                WillGuardianModel.backup_guardian_id == person_id,
+            )
+        )
+    )
+
+    stmt_witness = select(
+        literal("witness").label("role")
+    ).select_from(
+        WillWitnessModel
+    ).where(
+        WillWitnessModel.is_active == const_business.IS_ACTIVE_YES,
+        WillWitnessModel.will_id == will_id,
+        WillWitnessModel.person_id == person_id,
+    )
+
+    return stmt_executor.union_all(stmt_guardian.union_all(stmt_witness))
