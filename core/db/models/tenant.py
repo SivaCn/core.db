@@ -420,7 +420,7 @@ class PriceChartModel(DeclarativeBase):
     __table_args__ = {"schema": BASE_SCHEMA}
 
     price_chart_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
-    file_slug = model_slug(field_name='price_chart_slug')
+    price_chart_slug = model_slug(field_name='price_chart_slug')
 
     file_id = sa.Column(sa.BigInteger, sa.ForeignKey(f'{BASE_SCHEMA}.file.file_id'), nullable=False)
 

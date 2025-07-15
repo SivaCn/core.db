@@ -91,6 +91,9 @@ from core.db.models.tenant import (
 
     UserTariffModel,
     WillGuardianDependentModel,
+
+    PriceChartModel,
+    PriceChartDetailModel,
 )
 
 from core.utils.constants import (
@@ -1444,3 +1447,119 @@ def stmt_list_person_roles(
     )
 
     return stmt_executor.union_all(stmt_guardian.union_all(stmt_witness))
+
+
+def stmt_list_tariff(tariff_slug: Optional[str] = None):
+
+    stmt = select(
+        TariffModel.tariff_id,
+        TariffModel.tariff_slug,
+        TariffModel.name,
+        TariffModel.description,
+        TariffModel.category,
+        TariffModel.price,
+        TariffModel.price_chart_id,
+        TariffModel.is_listable,
+        TariffModel.is_recommended,
+        TariffModel.duration_unit,
+        TariffModel.duration_value,
+        TariffModel.updated_by,
+        TariffModel.is_active,
+        TariffModel.created_date,
+        TariffModel.updated_date,
+        TagModel.name.label('tag_name'),
+        PriceChartModel.price_chart_slug,
+        func.json_agg(
+            func.json_build_object(
+                'name', FeatureModel.name,
+                'accessLimit', TariffFeatureModel.credit
+            )
+        ).label('features')
+    ).select_from(
+        TariffModel
+    ).join(
+        TariffFeatureModel,
+        and_(
+            TariffFeatureModel.tariff_id == TariffModel.tariff_id,
+            TariffFeatureModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).join(
+        FeatureModel,
+        and_(
+            TariffFeatureModel.feature_id == FeatureModel.feature_id,
+            FeatureModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).join(
+        TariffTagModel,
+        and_(
+            TariffTagModel.tariff_id == TariffModel.tariff_id,
+            TariffTagModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).join(
+        TagModel,
+        and_(
+            TagModel.tag_id == TariffTagModel.tag_id,
+            TagModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).join(
+        PriceChartModel,
+        and_(
+            TariffModel.price_chart_id == PriceChartModel.price_chart_id,
+            PriceChartModel.is_active == const_business.IS_ACTIVE_YES,
+        ),
+        isouter=True
+    ).group_by(
+        TariffModel.tariff_id,
+        TariffModel.tariff_slug,
+        TariffModel.name,
+        TariffModel.description,
+        TariffModel.category,
+        TariffModel.price,
+        TariffModel.price_chart_id,
+        TariffModel.is_listable,
+        TariffModel.is_recommended,
+        TariffModel.duration_unit,
+        TariffModel.duration_value,
+        TariffModel.updated_by,
+        TariffModel.is_active,
+        TariffModel.created_date,
+        TariffModel.updated_date,
+        TagModel.name,
+        PriceChartModel.price_chart_slug,
+    ).order_by(
+        TariffModel.tariff_id
+    )
+
+    if tariff_slug:
+        stmt = stmt.where(
+            TariffModel.tariff_slug == tariff_slug
+        )
+
+    return stmt
+
+
+def stmt_query_price_chart_detail(price_chart_slug: str):
+
+    return select(
+        PriceChartDetailModel.age,
+        PriceChartDetailModel.price,
+        PriceChartDetailModel.nri_price,
+    ).select_from(
+        PriceChartDetailModel
+    ).join(
+        PriceChartModel,
+        and_(
+            PriceChartModel.price_chart_id == PriceChartDetailModel.price_chart_id,
+            PriceChartDetailModel.is_active == const_business.IS_ACTIVE_YES,
+        )
+    ).where(
+        PriceChartModel.price_chart_slug == price_chart_slug,
+        PriceChartModel.is_active == const_business.IS_ACTIVE_YES,
+    ).order_by(
+        PriceChartDetailModel.age
+    )
+
