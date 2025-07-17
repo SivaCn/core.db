@@ -1530,6 +1530,8 @@ def stmt_list_tariff(tariff_slug: Optional[str] = None):
         TariffModel.updated_date,
         TagModel.name,
         PriceChartModel.price_chart_slug,
+    ).where(
+        TariffModel.is_active == const_business.IS_ACTIVE_YES
     ).order_by(
         TariffModel.tariff_id
     )
