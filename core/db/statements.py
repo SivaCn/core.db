@@ -662,8 +662,8 @@ def stmt_query_person_identity(
     return stmt
 
 
-def stmt_delete_person_identity(where: dict, updates: dict):
-    return stmt_delete(model=PersonIdentityModel, where=where, updates=updates)
+def stmt_delete_person_identity(where: dict, updates: Optional[dict] = None):
+    return stmt_delete(model=PersonIdentityModel, where=where, updates=updates or dict())
 
 
 def stmt_query_user_person(
