@@ -1407,7 +1407,7 @@ def stmt_delete_guardian_dependent(where: dict, updates: Optional[dict] = None):
     return stmt_delete(model=WillGuardianDependentModel, where=where, updates=updates or dict())
 
 
-def stmt_list_guardian(user_id: int, person_id: int):
+def stmt_list_person_minimal(user_id: int, person_id: int):
 
     return select(
         PersonModel.person_slug,
