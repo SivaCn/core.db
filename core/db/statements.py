@@ -1407,6 +1407,29 @@ def stmt_delete_guardian_dependent(where: dict, updates: Optional[dict] = None):
     return stmt_delete(model=WillGuardianDependentModel, where=where, updates=updates or dict())
 
 
+def stmt_list_guardian(user_id: int, person_id: int):
+
+    return select(
+        PersonModel.person_slug,
+        PersonModel.name,
+        PersonModel.dob,
+
+        UserPersonModel.relation,
+        UserPersonModel.association,
+    ).select_from(
+        PersonModel
+    ).join(
+        UserPersonModel,
+        and_(
+            UserPersonModel.user_id == user_id,
+            PersonModel.person_id == UserPersonModel.person_id,
+            UserPersonModel.is_active == const_business.IS_ACTIVE_YES,
+        )
+    ).where(
+        PersonModel.person_id == person_id
+    )
+
+
 def stmt_list_person_roles(
         will_id: int,
         person_id: int):
