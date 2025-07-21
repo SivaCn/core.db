@@ -264,14 +264,15 @@ def stmt_delete(model, where: dict, updates: Optional[dict] = None):
 def stmt_query_admin(
         email: Optional[str] = None,
         admin_id: Optional[int] = None,
-        admin_slug: Optional[str] = None,
-        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+        admin_slug: Optional[str] = None):
+        # is_active: Optional[str] = const_business.IS_ACTIVE_YES):
 
     stmt = select(
         AdminModel
-    ).where(
-        AdminModel.is_active == is_active
     )
+    # ).where(
+    #     AdminModel.is_active == is_active
+    # )
 
     if email:
         stmt = stmt.where(AdminModel.email == email)
