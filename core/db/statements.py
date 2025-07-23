@@ -871,6 +871,7 @@ def stmt_list_cart_items(
         CartModel.cart_slug,
         TariffModel.tariff_slug,
         TariffModel.price,
+        TariffModel.price_chart_id,
         CartItemModel.cart_item_slug,
         CartItemModel.quantity,
     ).select_from(
@@ -880,15 +881,13 @@ def stmt_list_cart_items(
         and_(
             CartItemModel.cart_id == CartModel.cart_id,
             CartItemModel.is_active == const_business.IS_ACTIVE_YES,
-        ),
-        isouter=True
+        )
     ).join(
         TariffModel,
         and_(
             TariffModel.tariff_id == CartItemModel.tariff_id,
             TariffModel.is_active == const_business.IS_ACTIVE_YES,
-        ),
-        isouter=True
+        )
     )
 
     if cart_id:
@@ -1568,9 +1567,12 @@ def stmt_list_tariff(tariff_slug: Optional[str] = None):
     return stmt
 
 
-def stmt_query_price_chart_detail(price_chart_slug: str):
+def stmt_query_price_chart_detail(
+        price_chart_id: Optional[int] = None,
+        price_chart_slug: Optional[str] = None,
+        age: Optional[int] = None):
 
-    return select(
+    stmt = select(
         PriceChartDetailModel.age,
         PriceChartDetailModel.price,
         PriceChartDetailModel.nri_price,
@@ -1583,11 +1585,27 @@ def stmt_query_price_chart_detail(price_chart_slug: str):
             PriceChartDetailModel.is_active == const_business.IS_ACTIVE_YES,
         )
     ).where(
-        PriceChartModel.price_chart_slug == price_chart_slug,
         PriceChartModel.is_active == const_business.IS_ACTIVE_YES,
     ).order_by(
         PriceChartDetailModel.age
     )
+
+    if price_chart_id:
+        stmt = stmt.where(
+            PriceChartModel.price_chart_id == price_chart_id
+        )
+
+    if price_chart_slug:
+        stmt = stmt.where(
+            PriceChartModel.price_chart_slug == price_chart_slug
+        )
+
+    if age:
+        stmt = stmt.where(
+            PriceChartDetailModel.age == age
+        )
+
+    return stmt
 
 
 def stmt_count_used_coupons(
@@ -1612,3 +1630,4 @@ def stmt_count_used_coupons(
     )
 
     return stmt
+
