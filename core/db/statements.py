@@ -1588,3 +1588,26 @@ def stmt_query_price_chart_detail(price_chart_slug: str):
         PriceChartDetailModel.age
     )
 
+
+def stmt_count_used_coupons(
+        user_id : str,
+        coupon_id : str):
+
+    stmt = select(
+        func.count().label('used_count')
+    ).select_from(
+        PaymentModel
+    ).join(
+        CartModel,
+        and_(
+            PaymentModel.cart_id == CartModel.cart_id,
+            CartModel.user_id == user_id,
+            CartModel.coupon_id == coupon_id,
+        )
+    ).where(
+        PaymentModel.user_id == user_id,
+        PaymentModel.event == 'payment.captured',
+        PaymentModel.is_verified == True,
+    )
+
+    return stmt
