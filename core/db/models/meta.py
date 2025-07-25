@@ -89,6 +89,7 @@ class RoleModel(DeclarativeBase):
     role_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     role_slug = model_slug(field_name='role_slug')
     name = sa.Column(sa.String(128), nullable=False)
+    rank = sa.Column(sa.Integer, nullable=False)
     description = sa.Column(sa.String(1024), nullable=True)
 
     is_active = model_is_active()

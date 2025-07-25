@@ -340,12 +340,38 @@ def stmt_query_roles(
     return stmt
 
 
-def stmt_query_roles_by_admin(
-        admin_id: Optional[int] = None,
-        admin_slug: Optional[str] = None,
-        is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+# def stmt_query_roles_by_admin(
+#         admin_id: Optional[int] = None,
+#         admin_slug: Optional[str] = None,
+#         is_active: Optional[str] = const_business.IS_ACTIVE_YES):
+#
+#     stmt = select(
+#         RoleModel
+#     ).join(
+#         AdminRoleModel,
+#         and_(
+#             RoleModel.role_id == AdminRoleModel.role_id,
+#             AdminRoleModel.is_active == const_business.IS_ACTIVE_YES
+#         )
+#     ).where(
+#         RoleModel.is_active == is_active
+#     )
+#
+#     if admin_id:
+#         stmt = stmt.where(AdminRoleModel.admin_id == admin_id)
+#
+#     if admin_slug:
+#         stmt = stmt.where(AdminRoleModel.admin_slug == admin_slug)
+#
+#     return stmt
+
+
+def stmt_query_rank_n_roles(admin_id: int):
 
     stmt = select(
+        RoleModel.rank,
+        func.array_agg(RoleModel.name).label("roles")
+    ).select_from(
         RoleModel
     ).join(
         AdminRoleModel,
@@ -354,14 +380,15 @@ def stmt_query_roles_by_admin(
             AdminRoleModel.is_active == const_business.IS_ACTIVE_YES
         )
     ).where(
-        RoleModel.is_active == is_active
+        RoleModel.is_active == const_business.IS_ACTIVE_YES
+    ).group_by(
+        RoleModel.rank
     )
 
     if admin_id:
-        stmt = stmt.where(AdminRoleModel.admin_id == admin_id)
-
-    if admin_slug:
-        stmt = stmt.where(AdminRoleModel.admin_slug == admin_slug)
+        stmt = stmt.where(
+            AdminRoleModel.admin_id == admin_id
+        )
 
     return stmt
 
